@@ -1,0 +1,19 @@
+apply plugin: 'scala'
+apply plugin: 'idea'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile 'org.scala-lang:scala-library:2.11.8'
+}
+
+idea {
+	project {
+		vcs = 'Git'
+	}
+	module {
+		downloadSources = true
+	}
+}
