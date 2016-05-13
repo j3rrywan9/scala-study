@@ -44,6 +44,8 @@ To summarize, the syntax for a function literal is a list of named parameters, i
 In Scala, you can instantiate objects, or class instance, using **new**.
 
 ## Lists
+One of the big ideas of the functional sytle of programming is that methods should not have side effects. A method's only act should be to compute and return a value. Applying this functional philosophy to the world of objects means making objects immutable.
+
 For an immutable sequence of objects that share the same type you can use Scala's **List** class. Scala's List, scala.List, differs from Java's java.util.List type in that Scala Lists are always immutable (whereas Java Lists can be mutable). More generally, Scala's List is designed to enable a functional style of programming.
 
 Creating a list is easy:
@@ -62,3 +64,24 @@ val movieSet = Set("Hitch", "Poltergeist")
 movieSet += "Shrek"
 println(movieSet)
 ```
+
+## Maps
+
+## Learn to recognize the functional style
+One telltale sign is that if code contains any vars, it is probably in an imperative style. If the code contains no vars at all i.e. it contains only vals, it is probably in a functional style. One way to move towards a functional style, therefore, is to try to program without vars.
+
+The telltale sign of a function with side effects is that its result type is `Unit`.
+
+Every useful program is likely to have side effects of some form, because otherwise it wouldn't be able to provide value to the outside world. Preferring methods without side effects encourages you to design programs where side-effecting code is minimized. One benefit of this approach is that it can help make your programs easier to test.
+
+That said, bear in mind that neither vars nor side effects are inherently evil. Scala is not a pure functional language that forces you to program everything in the functional style. Scala is a hybrid imperative/functional language.
+
+## Traits
+Similar to interfaces in Java, traits are used to define object types by specifying the signature of the supported methods. Like in Java 8, Scala allows traits to be partially implemented; i.e. it is possible to define default implementations for some methods. In contrast to classes, traits may not have constructor parameters. Here is an example:
+```scala
+trait Similarity {
+  def isSimilar(x: Any): Boolean
+  def isNotSimilar(x: Any): Boolean = !isSimilar(x)
+}
+```
+This trait consists of two methods `isSimilar` and `isNotSimilar`. While `isSimilar` does not provide a concrete method implementation (it is abstract in the terminology of Java), method `isNotSimilar` defines a concrete implementation. Consequently, classes that integrate this trait only have to provide a concrete implementation for `isSimilar`. The behavior for `isNotSimilar` gets inherited directly from the trait.
