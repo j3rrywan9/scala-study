@@ -14,7 +14,7 @@ val numNames = Array("zero", "one", "two")
 
 ## Lists
 
-One of the big ideas of the functional sytle of programming is that methods should not have side effects.
+One of the big ideas of the functional style of programming is that methods should not have side effects.
 A method's only act should be to compute and return a value.
 Applying this functional philosophy to the world of objects means making objects immutable.
 
@@ -26,6 +26,13 @@ Creating a list is easy:
 ```scala
 val oneTwoThree = List(1, 2, 3)
 ```
+
+## List Buffers
+
+A `ListBuffer` is a mutable object (contained in package `scala.collection.mutable`), which can help you build lists more efficiently when you need to append.
+`ListBuffer` provides constant time append and prepend operations.
+You append elements with the `+=` operator, and prepend them with the `+=:` operator.
+When you're done building, you can obtain a `List` by invoking `toList` on the `ListBuffer`.
 
 ## Sets
 
