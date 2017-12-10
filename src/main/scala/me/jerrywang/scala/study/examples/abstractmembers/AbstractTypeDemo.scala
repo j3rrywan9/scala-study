@@ -1,4 +1,4 @@
-package me.jerrywang.scala.study.examples
+package me.jerrywang.scala.study.examples.abstractmembers
 
 object AbstractTypeDemo extends App {
   class Food
