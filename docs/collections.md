@@ -1,17 +1,5 @@
 # Collections
 
-## Arrays
-
-In Scala, arrays are zero based, and you access an element by specifying an index in parentheses.
-So the first element in a Scala array named `steps` is `steps(0)`, not `steps[0]`.
-
-Arrays are simply instances of classes like any other class in Scala.
-When you apply parentheses surrounding one or more values to a variable, Scala will transform the code into an invocation of a method named `apply` on that variable.
-Thus accessing an element of an array in Scala is simply a method call like any other.
-```scala
-val numNames = Array("zero", "one", "two")
-```
-
 ## Lists
 
 One of the big ideas of the functional style of programming is that methods should not have side effects.
@@ -34,6 +22,66 @@ A `ListBuffer` is a mutable object (contained in package `scala.collection.mutab
 You append elements with the `+=` operator, and prepend them with the `+=:` operator.
 When you're done building, you can obtain a `List` by invoking `toList` on the `ListBuffer`.
 
+## Mutable and immutable collections
+
+Scala collections systematically distinguish between mutable and immutable collections.
+
+A mutable collection can be updated or extended in place.
+This means you can change, add, or remove elements of a collection as a side effect.
+
+Immutable collections, by contrast, never change.
+You still have operations that simulate additions, removals, or updates, but those operations will in each case return a new collection and leave the old collection unchanged.
+
+All collection classes are found in the package `scala.collection` or one of its subpackages: `mutable`, `immutable`, and `generic`.
+Most collection classes needed by client code exist in three variants, each of which has different characteristics with respect to mutability.
+The three variants are located in packages `scala.collection`, `scala.collection.immutable`, and `scala.collection.mutable`.
+
+## Collection consistency
+
+There is quite a bit of commonality shared by all these classes.
+
+All collections support the API provided by `Traversable`, but their methods all return their own class rather than the root class `Traversable`.
+
+## Trait `Traversable`
+
+At the top of the collection hierarchy is trait `Traversable`.
+Its only abstract operation is `foreach`:
+```scala
+def foreach[U](f: Elem => U)
+```
+Collection classes implementing `Traversable` just need to define this method;
+all other methods can be inherited from `Traversable`.
+
+The `foreach` method is meant to traverse all elements of the collection, and apply the given operation, `f`, to each element.
+
+## Trait `Iterable`
+
+The next trait from the top is `Iterable`.
+All methods in this trait are defined in terms of an abstract method, `iterator`, which yields the collection's elements one by one.
+The abstract `foreach` method inherited from trait `Traversable` is implemented in `Iterable` in terms of `iterator`.
+
+### Why have both `Traversable` and `Iterable`?
+
+One reason for having `Traversable` is that sometimes it is easier or more efficient to provide an implementation of `foreach` than to provide an implementation of `iterator`.
+
+### Subcategories of `Iterable`
+
+In the inheritance hierarchy below `Iterable` you find three traits: `Seq`, `Set`, and `Map`.
+A common aspect of these three traits is that they all implement the `PartialFunction` trait with its `apply` and `isDefinedAt` methods.
+However, the way each trait implements `PartialFunction` differs.
+
+## The sequence traits `Seq`, `IndexedSeq`, and `LinearSeq`
+
+The `Seq` trait represents sequences.
+A sequence is a kind of iterable that has a `length` and whose elements have fixed index positions, starting from `0`.
+
+### Buffers
+
+An important sub-category of mutable sequences is buffers.
+Buffers allow not only updates of existing elements but also element insertions, element removals, and efficient additions of new elements at the end of the buffer.
+
+Two `Buffer` implementations that are commonly used are `ListBuffer` and `ArrayBuffer`.
+
 ## Sets
 
 Scala provides mutable and immutable alternatives for sets and maps, but uses the same simple names for both versions.
@@ -49,3 +97,77 @@ println(movieSet)
 
 ## Maps
 
+Scala's `Predef` class offers an implicit conversion that lets you write `key -> value` as an alternate syntax for the pair `(key, value)`.
+
+## Concrete immutable collection classes
+
+### Lists
+
+### Streams
+
+### Vectors
+
+### Immutable stacks
+
+### Immutable queues
+
+### Ranges
+
+### Hash tries
+
+## Concrete mutable collection classes
+
+## Arrays
+
+Arrays are a special kind of collection in Scala.
+On the one hand, Scala arrays correspond one-to-one to Java arrays.
+But at the same time, Scala arrays offer much more than their Java analogues.
+First, Scala arrays can be *generic*.
+That is, you can have an `Array[T]`, where `T` is a type parameter or abstract type.
+Second, Scala arrays are compatible with Scala sequences - you can pass an `Array[T]` where a `Seq[T]` is required.
+Finally, Scala arrays also support all sequence operations.
+
+In Scala, arrays are zero based, and you access an element by specifying an index in parentheses.
+So the first element in a Scala array named `steps` is `steps(0)`, not `steps[0]`.
+
+Arrays are simply instances of classes like any other class in Scala.
+When you apply parentheses surrounding one or more values to a variable, Scala will transform the code into an invocation of a method named `apply` on that variable.
+Thus accessing an element of an array in Scala is simply a method call like any other.
+```scala
+val numNames = Array("zero", "one", "two")
+```
+
+## Strings
+
+Like arrays, strings are not directly sequences, but they can be converted to them, and they also support all sequence operations.
+
+## Performance characteristics
+
+## Equality
+
+## Views
+
+## Builders
+
+Almost all collection operations are implemented in terms of *traversals* ana *builders*.
+Traversals are handled by `Traversable`'s `foreach` method, and building new collections is handled by instances of class `Builder`.
+
+Builders are generic in both the element type, `Elem`, and in the type, `To`, of collections they return.
+
+Often, a builder can refer to some other builder for assembling the elements of a collection, but then would like to transform the result of the other builder - for example, to give it a different type.
+This task is simplified by method `mapResult` in class `Builder`.
+
+## Factoring out common operations
+
+The Scala collection library avoids code duplication and achieves the "same-result type" principle by using generic builders and traversals over collections in so-called *implementation traits*.
+These traits are named with a `Like` suffix.
+
+## Creating collections from scratch
+
+You can take any collection name and follow it by a list of elements in parentheses.
+The result will be a new collection with the given elements.
+
+Every collection class in Scala library has a companion object with such an `apply` method.
+It does not matter whether the collection class represents a concrete implementation, or whether it is an trait such as `Seq`, `Set`, or `Traversable`.
+
+Besides `apply`, every collection companion object also defines a member `empty`, which returns an empty collection.
