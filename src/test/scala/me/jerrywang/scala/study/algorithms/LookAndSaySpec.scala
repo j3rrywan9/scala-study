@@ -9,7 +9,7 @@ import me.jerrywang.scala.study.algorithms.interview.LookAndSay
 
 class LookAndSaySpec extends PropSpec with PropertyChecks {
   val randomSeed = Gen.choose(0, Int.MaxValue)
-  val iterationLessThanOne = Gen.choose(-Int.MaxValue, 0)
+  val iterationLessThanOne = Gen.choose(Int.MinValue, 0)
 
   property("the encode method must handle less than 1 iterations") {
     forAll(randomSeed, iterationLessThanOne) { (seed, iteration) =>
