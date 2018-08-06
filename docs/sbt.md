@@ -63,7 +63,7 @@ Every project using sbt should have two files:
 * project/build.properties
 * build.sbt
 
-The build.properties file is used to inform sbt which version it should use for your build, and the build.sbt file defines the actual settings for your build.
+The *build.properties* file is used to inform sbt which version it should use for your build, and the *build.sbt* file defines the actual settings for your build.
 
 ### Tasks
 
@@ -75,9 +75,9 @@ Tasks are things that sbt build can do for you, like compiling a project, creati
 
 #### Make sure to reload
 
-Any change to the build.sbt file or files in the project/ directory won't be immediately available within the sbt console.
+Any change to the *build.sbt* file or files in the *project/* directory won't be immediately available within the sbt console.
 The `reload` command tells sbt to re-examine the project definition and rewire the project.
-When you edit an sbt build, you’ll need to reload.
+When you edit an sbt build, you'll need to reload.
 
 ## Core concepts
 
@@ -103,4 +103,49 @@ This prevents mismatched data from being passed around the build.
 sbt provides a convenient syntax for defining dependencies on remote artifacts using the `%` method.
 This method is used to create `ModuleID` instances.
 To define a `ModuleID` in sbt, write `"groupId" % "artifactId" % "version"` and it will automatically become an instance of a `ModuleID`.
+
+The `libraryDependencies` key holds a value of type `Seq[ModuleID]`.
+The `+=` operator is used to take the previous value assigned to the `libraryDependencies` setting and append the new `ModuleID` value to it.
+
+There are two operators to append values to existing settings that contain a sequence of items: `+=` and `++=`.
+The `++=` operator works similarly to the `+=` operator, but instead of adding a single value, it adds multiple values given as a sequence.
+
+#### Initializations
+
+### Creating and executing tasks
+
+Builds are about accomplishing tasks, from running a compiler to generating zip files for distribution.
+Tasks are the means to repeatedly perform some operation, like compiling your project, generating documentation, or running tests.
+In sbt a task is like a setting that runs every time you request its value.
+That is, every time you make a request to sbt's task engine, each task required will be run once for that request.
+
+### Defining with  subprojects
+
+In sbt, the default project settings assume that each project has its own base directory.
+Each project in your build should have its own base directory that's different from any other project.
+Within this base directory, you'll find the directories for source code, testing code, and so on.
+
+The root directory is the default target for settings found in the `build.sbt` file.
+This means that all the configuration you have so far for testing applies only to code in the root project.
+
+Project dependencies are defined using the `dependsOn` method of `Project`.
+
+#### Project definition order matters!
+
+Just like any other Scala object, any values defined can't be referenced before they're declared.
+Because of this, it drastically simplifies life to declare projects using `lazy val`s.
+It's such a common issue with circular references that we recommend always using `lazy val`s to define projects.
+
+## The default build
+
+### Compiling your code
+
+One of the primary purposes of a build tool is to compile code.
+But in order to compile code, sbt first needs to know a few things.
+You can ask sbt what it needs using the `inspect tree` command on the sbt prompt.
+
+As shown in this more easily readable tree, compilation requires three things:
+* A sequence (list) of source files
+* A sequence (list) of libraries
+* A sequence (list) of compiler configuration options
 
