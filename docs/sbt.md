@@ -86,7 +86,7 @@ When you edit an sbt build, you'll need to reload.
 ### Defining settings
 
 Settings are the bread and butter of sbt builds.
-They’re the mechanism by which you configure sbt to perform the work you need for your build.
+They're the mechanism by which you configure sbt to perform the work you need for your build.
 sbt reads all the settings defined in your build at load time and runs their initializations, which produce the final setting values used for your build.
 
 A setting consists of three parts: a key, an initialization, and an operator that associates the key and initialization.
@@ -148,4 +148,43 @@ As shown in this more easily readable tree, compilation requires three things:
 * A sequence (list) of source files
 * A sequence (list) of libraries
 * A sequence (list) of compiler configuration options
+
+### Finding your sources
+
+As it does for many other aspects of a build, sbt applies certain conventions when looking for your source code.
+But you can easily customize the way sources are organized, if necessary
+
+#### Standard organization of sources
+
+You can see that the list of sources is taken from two aggregates:
+* *unmanagedSources* - A discovered list of source files using standard project conventions
+* *managedSources* - A list of sources that are either generated from the build or manually added
+
+For sbt, the unmanaged sources are discovered by convention.
+Unmanaged means you (not sbt) have to do the work of adding, modifying, and tracking the source files, whereas managed source files are ones that sbt will create and track for you.
+
+Unmanaged sources make use of a set of file filters and a default set of directories to produce the sequence of source files for the project.
+As shown in the dependency tree, the directories defined by the `javaSource` and `scalaSource` settings make up the set of directories where sbt looks for sources.
+
+#### Testing sources
+
+Besides these main sources, many projects contain other kinds of source files.
+The most prominent ones are the test source files, which contain code to test your software but will never enter production.
+Typical examples include unit tests written using a testing library like ScalaTest, ScalaCheck, or JUnit.
+Of course, there can also be test resources, files that won't be compiled but are needed at the time of test execution as is.
+
+To delineate the different dimensions of sources, sbt places the *compile source file* settings into a configuration called `Compile` and the *test source file* settings into a configuration called `Test`.
+You can inspect the dependency tree for test sources by running the `inspect tree test:sources` command in the sbt shell:
+```sbt
+inspect tree test:sources
+```
+You may notice that the test:sources task uses the exact same lookup as the `compile:sources` task.
+That's because under the covers, sbt is using the same set of settings to find your source files.
+sbt does this same thing with the resources task, creating settings for configuring testing resources under the `test:resources` task.
+
+#### Custom organization of sources
+
+The lowest setting in the tree, `sourceDirectory`, which has type File in the Global configuration scope (`*`), is defined to be `src/`.
+By default it depends on another setting of type File: `baseDirectory`, which points to the base directory of your project.
+`sourceDirectory` points to a new src child directory underneath the project's `baseDirectory`.
 
