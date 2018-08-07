@@ -157,8 +157,8 @@ But you can easily customize the way sources are organized, if necessary
 #### Standard organization of sources
 
 You can see that the list of sources is taken from two aggregates:
-* *unmanagedSources* - A discovered list of source files using standard project conventions
-* *managedSources* - A list of sources that are either generated from the build or manually added
+* **unmanagedSources** - A discovered list of source files using standard project conventions
+* **managedSources** - A list of sources that are either generated from the build or manually added
 
 For sbt, the unmanaged sources are discovered by convention.
 Unmanaged means you (not sbt) have to do the work of adding, modifying, and tracking the source files, whereas managed source files are ones that sbt will create and track for you.
@@ -184,7 +184,76 @@ sbt does this same thing with the resources task, creating settings for configur
 
 #### Custom organization of sources
 
-The lowest setting in the tree, `sourceDirectory`, which has type File in the Global configuration scope (`*`), is defined to be `src/`.
+The lowest setting in the tree, `sourceDirectory`, which has type `File` in the Global configuration scope (`*`), is defined to be `src/`.
 By default it depends on another setting of type File: `baseDirectory`, which points to the base directory of your project.
-`sourceDirectory` points to a new src child directory underneath the project's `baseDirectory`.
+`sourceDirectory` points to a new `src` child directory underneath the project's `baseDirectory`.
+
+### Depending on libraries
+
+The dependencies are split into two parts:
+* **Internal dependencies** - These are the dependencies between projects defined in the current sbt build.
+* **External dependencies** - These are dependencies that must be pulled from somewhere outside, via Ivy or the filesystem.
+
+Whereas internal dependencies are calculated using the project `dependsOn` method, external dependencies are a bit more involved.
+They’re further split into the following two components:
+* **Unmanaged dependencies** - These are external dependencies sbt discovers from default locations.
+* **Managed dependencies** - These are external dependencies you specify in the sbt build.
+These dependencies are resolved by the `update` task.
+
+#### Unmanaged dependencies
+
+#### Managed dependencies
+
+The recommended approach to library dependencies is using managed dependencies.
+If you’ve been using Maven, Gradle, or some other advanced build tool, the concept of declarative library management won't be new.
+sbt's managed dependencies are similar: you declare one or more library dependencies in the build definition, and sbt will download these from a repository and put these on the classpath when needed.
+
+The most important setting to know about IvySbt is the `resolvers` setting.
+This is where you can specify how and where to find libraries.
+Although Ivy supports configurable lookup mechanisms, most projects make use of sbt's default, which is to load from a Maven repository.
+
+The `libraryDependencies` setting is defined as a collection of `ModuleID` values.
+`ModuleID` is an sbt abstraction to simplify the declaration of dependencies.
+
+`ModuleID` consists of three mandatory values: `organization`, `name`, and `revision`.
+These are Ivy's variants of Maven's `groupId`, `artifactId`, and `version` attributes and are a way to uniquely identify a library.
+
+In sbt, you can define a module ID using the `%` method against strings.
+Simply specify the organization, name, and revision separated by `%`.
+
+When it comes to dependencies on Scala libraries, you need to pay special attention to binary compatibility.
+You have to use a version of the library that was compiled against the same or at least a binary-compatible version of Scala, like the one we're using for our project.
+
+sbt has established a de facto standard where the Scala version is encoded in the `name` of the library by name mangling.
+Actually, it's not the full Scala version that's added to the `name` but only the Scala binary version, which by default consists of the major and minor version numbers; for example, 2.10.
+
+Therefore, sbt offers a convenient and safe way to declare dependencies on cross-compiled Scala libraries.
+Instead of the `%` operator, you use the `%%` operator between the `organization` and `name` and omit adding the Scala binary version to the name:
+```sbt
+libraryDependencies ++= Seq(
+  "com.typesafe" %% "scalalogging-slf4j" % "0.4.0",
+  "ch.qos.logback" % "logback-classic" % "1.0.7"
+)
+```
+This is as easy as before, and sbt will automatically create a `ModuleID`, which has a name mangled with the Scala binary version.
+
+#### Managed dependencies and configurations
+
+```sbt
+libraryDependencies ++= Seq(
+  "org.scalatest" %% "scalatest" % "3.0.5" % "test"
+)
+```
+You append the name of the Test configuration to the library dependency, using an additional `%` operator to define the configuration.
+By default, all dependencies are put onto the default configuration, used for both running and compiling all code in your project.
+
+### Packaging your project
+
+The default sbt build is oriented around open source JVM libraries.
+This means that, by default, sbt will package your project as reusable jar files that can be published to Ivy or Maven repositories and consumed by others.
+Publishing to Ivy or Maven requires a few things:
+* A jar file containing the library to share
+* A jar file containing the source code of the shared library
+* A jar file containing the documentation (Scaladoc or Javadoc) of the shared library
+* A configuration file (pom.xml or ivy.xml) that identifies the project and where it came from
 
