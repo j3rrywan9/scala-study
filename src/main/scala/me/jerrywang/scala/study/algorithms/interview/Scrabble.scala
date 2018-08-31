@@ -1,9 +1,11 @@
 package me.jerrywang.scala.study.algorithms.interview
 
 import java.io.{ FileNotFoundException, IOException }
+
 import scala.collection.mutable.{ ListBuffer, Map }
 import scala.io.Source
 import scala.io.StdIn.readLine
+import scala.util.{ Failure, Success, Try }
 
 object Scrabble extends App {
   val WordsPath = "/usr/share/dict/words"
@@ -13,9 +15,10 @@ object Scrabble extends App {
     for (word <- Source.fromFile(WordsPath).getLines) {
       val sortedWord = word.toLowerCase.sorted
 
-      if (!map.contains(sortedWord))
-        map(sortedWord) = ListBuffer[String]()
-      map(sortedWord) += word
+      Try(map(sortedWord)) match {
+        case Success(listOfAnagrams) => listOfAnagrams += word
+        case Failure(_) => map(sortedWord) = new ListBuffer[String] += word
+      }
     }
 
     // map.foreach { case (sortedWord, listOfAnagrams) => println(sortedWord + " -> " + listOfAnagrams.mkString("(", ", ", ")")) }
@@ -24,10 +27,10 @@ object Scrabble extends App {
       val userInput = readLine("What letters? ")
       val sortedUserInput = userInput.toLowerCase.sorted
 
-      if (map.contains(sortedUserInput))
-        println(map(sortedUserInput).mkString("[", ", ", "]"))
-      else
-        println("No valid English words found.")
+      Try(map(sortedUserInput)) match {
+        case Success(listOfAnagrams) => println(listOfAnagrams.mkString("[", ", ", "]"))
+        case Failure(_) => println("No valid English words found.")
+      }
     }
   } catch {
     case _: FileNotFoundException => println("Couldn't find file " + WordsPath)
