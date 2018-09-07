@@ -13,6 +13,10 @@ This is a one-argument method that takes a function and returns an action listen
 
 Because `function2ActionListener` is marked as implicit, it can be left out and the compiler will insert it automatically.
 
+The way this code works is that the compiler first tries to compile it as is, but it sees a type error.
+Before giving up, it looks for an implicit conversion that can repair the problem.
+It tries that conversion method, sees that it works, and moves on.
+
 ## Rules for implicits
 
 Implicit definitions are those that the compiler is allowed to insert into a program in order to fix any of its type errors.
@@ -73,9 +77,15 @@ In particular, they allow you to enable client programmers to use instances of e
 
 The other major use of implicit conversions is to simulate adding new syntax.
 
+Recall that you can make a `Map` using syntax like this:
+```scala
+Map(1 -> "one", 2 -> "two", 3 -> "three")
+```
 Instead, `->` is a method of the class `ArrowAssoc`, a class defined inside the standard Scala preamble `scala.Predef`.
 The preamble also defines an implicit conversion from `Any` to `ArrowAssoc`.
 When you write `1 -> "one"`, the compiler inserts a conversion from `1` to `ArrowAssoc` so that the `->` method can be found.
+
+Whenever you see someone calling methods that appear not to exist in the receiver class, they are probably using implicits.
 
 ### Implicit classes
 
@@ -107,13 +117,14 @@ As a style rule, it is best to use a custom named type in the types of implicit 
 ## Context bounds
 
 Note that when you use `implicit` on a parameter, not only will the compiler try *supply* that parameter with an implicit value, but the compiler will also *use* that parameter as an available implicit in the body of the method!
-
 ```scala
 def implicitly[T](implicit t: T) = t
 ```
 The effect of calling `implicitly[Foo]` is that the compiler will look for an implicit definition of type `Foo`.
 It will then call the `implicitly` method with that object, which in turn returns the object right back.
-Thus you can write `implicitly[Foo]` whenever you want to find an implicit object of type `Foo` in the current scope. 
+Thus you can write `implicitly[Foo]` whenever you want to find an implicit object of type `Foo` in the current scope.
+
+Because this pattern is common, Scala lets you leave out the name of this parameter and shorten the method header by using a *context bound*.
 
 ## When multiple conversions apply
 
