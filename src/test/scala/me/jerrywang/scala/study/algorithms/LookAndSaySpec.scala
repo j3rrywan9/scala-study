@@ -1,13 +1,12 @@
 package me.jerrywang.scala.study.algorithms
 
-import org.scalacheck.Gen
-import org.scalatest.Matchers._
-import org.scalatest.PropSpec
-import org.scalatest.prop.PropertyChecks
-
 import me.jerrywang.scala.study.algorithms.interview.LookAndSay
 
-class LookAndSaySpec extends PropSpec with PropertyChecks {
+import org.scalacheck.Gen
+import org.scalatest.{ Matchers, PropSpec }
+import org.scalatest.prop.PropertyChecks
+
+class LookAndSaySpec extends PropSpec with PropertyChecks with Matchers {
   val randomSeed = Gen.choose(0, Int.MaxValue)
   val iterationLessThanOne = Gen.choose(Int.MinValue, 0)
 
