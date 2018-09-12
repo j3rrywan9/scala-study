@@ -53,6 +53,8 @@ Collection classes implementing `Traversable` just need to define this method;
 all other methods can be inherited from `Traversable`.
 
 The `foreach` method is meant to traverse all elements of the collection, and apply the given operation, `f`, to each element.
+The type of the operation is `Elem => U`, where `Elem` is the type of the collection's elements and `U` is an arbitrary result type.
+The invocation of `f` is done for its side effect only; in fact any function result of `f` is discarded by `foreach`.
 
 ## Trait `Iterable`
 
@@ -67,13 +69,17 @@ One reason for having `Traversable` is that sometimes it is easier or more effic
 ### Subcategories of `Iterable`
 
 In the inheritance hierarchy below `Iterable` you find three traits: `Seq`, `Set`, and `Map`.
-A common aspect of these three traits is that they all implement the `PartialFunction` trait with its `apply` and `isDefinedAt` methods.
+A common aspect of `Seq` and `Map` traits is that they all implement the `PartialFunction` trait with its `apply` and `isDefinedAt` methods.
 However, the way each trait implements `PartialFunction` differs.
 
 ## The sequence traits `Seq`, `IndexedSeq`, and `LinearSeq`
 
 The `Seq` trait represents sequences.
 A sequence is a kind of iterable that has a `length` and whose elements have fixed index positions, starting from `0`.
+
+For a `Seq`, the `apply` operation means indexing;
+hence a sequence of type `Seq[T]` is a partial function that take an `Int` argument (an index) and yields a sequence element of type `T`.
+In other words `Seq[T]` extends `PartialFunction[Int, T]`.
 
 ### Buffers
 
@@ -82,7 +88,9 @@ Buffers allow not only updates of existing elements but also element insertions,
 
 Two `Buffer` implementations that are commonly used are `ListBuffer` and `ArrayBuffer`.
 
-## Sets
+### Sets
+
+`Set`s are `Iterable`s that contain no duplicate elements.
 
 Scala provides mutable and immutable alternatives for sets and maps, but uses the same simple names for both versions.
 
@@ -95,7 +103,9 @@ movieSet += "Shrek"
 println(movieSet)
 ```
 
-## Maps
+### Maps
+
+`Map`s are `Iterable`s of pairs of keys and values.
 
 Scala's `Predef` class offers an implicit conversion that lets you write `key -> value` as an alternate syntax for the pair `(key, value)`.
 
@@ -147,9 +157,31 @@ Like arrays, strings are not directly sequences, but they can be converted to th
 
 ## Views
 
+A *view* is a special kind of collection that represents some base collection, but implements all of its transformers lazily.
+
+## Iterators
+
+An iterator is not a collection, but rather a way to access the elements of a collection one by one.
+The two basic operations on an iterator `it` are `next` and `hasNext`.
+A call to `it.next()` will return the next element of the iterator and advance the state of the iterator.
+If there are no more elements to return, a call to `next` will throw a `NoSuchElementException`.
+
+When called on an iterator, `foreach` will leave the iterator at its end when it is done.
+
+## Creating collections from scratch
+
+This is actually a universal feature of Scala collections.
+You can take any collection name and follow it by a list of elements in parentheses.
+The result will be a new collection with the given elements.
+
+Every collection class in Scala library has a companion object with such an `apply` method.
+It does not matter whether the collection class represents a concrete implementation, or whether it is an trait such as `Seq`, `Set`, or `Traversable`.
+
+Besides `apply`, every collection companion object also defines a member `empty`, which returns an empty collection.
+
 ## Builders
 
-Almost all collection operations are implemented in terms of *traversals* ana *builders*.
+Almost all collection operations are implemented in terms of *traversals* and *builders*.
 Traversals are handled by `Traversable`'s `foreach` method, and building new collections is handled by instances of class `Builder`.
 
 Builders are generic in both the element type, `Elem`, and in the type, `To`, of collections they return.
@@ -162,12 +194,9 @@ This task is simplified by method `mapResult` in class `Builder`.
 The Scala collection library avoids code duplication and achieves the "same-result type" principle by using generic builders and traversals over collections in so-called *implementation traits*.
 These traits are named with a `Like` suffix.
 
-## Creating collections from scratch
+They parameterize not only over the collection's element type, but also over the collection's *representation* type (i.e., the type of the underlying collection).
+For instance, here is the header of trait `TraversableLike`:
+```scala
+trait TraversableLike[+Elem, +Repr]
+```
 
-You can take any collection name and follow it by a list of elements in parentheses.
-The result will be a new collection with the given elements.
-
-Every collection class in Scala library has a companion object with such an `apply` method.
-It does not matter whether the collection class represents a concrete implementation, or whether it is an trait such as `Seq`, `Set`, or `Traversable`.
-
-Besides `apply`, every collection companion object also defines a member `empty`, which returns an empty collection.
