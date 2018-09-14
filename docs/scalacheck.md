@@ -15,7 +15,7 @@ A test is a concrete example of how a program should behave in a particular situ
 Still, the tests don't really describe the method's behavior; they merely give us a number of usage examples.
 A *property*, on the other hand, will give us a more general description of the behavior.
 
-You can read the property get a *complete* definition of the behavior, rather than a set of examples that only indicates the method's behavior.
+You can read the property and get a *complete* definition of the behavior, rather than a set of examples that only indicates the method's behavior.
 
 There is not much more to property-based testing than this.
 Simply replace a set of concrete test cases with one abstract property that describes a code unit's behavior.
@@ -29,15 +29,50 @@ Property-based testing simply gives you new ways of expressing expectations on y
 ### Benefits from property-based testing
 
 **Test coverage** can increase since test cases are generated in a random fashion, and the code is tested with many more cases.
+Since you can control the distribution of generated test cases in ScalaCheck and collect statistics on the kind of data that has been used, you can get reliable test coverage if you write your properties with care.
 
-## Using ScalaCheck
+**Specification completeness** is easier to accomplish with ScalaCheck than with JUnit.
+In ScalaCheck, you often have a chance to define exactly how your code should behave.
+This can be useful not only because it enables better testing, but also because it forces you to reflect about your code's exact behavior.
+It makes it harder to skip over edge cases in your tests, in your implementation, and in your thinking.
+
+## ScalaCheck versus JUnit
+
+### Using ScalaCheck
 
 In ScalaCheck, you define *properties* instead of tests.
 To define a set of properties for our library under test, we extend `org.scalacheck.Properties` class, which could be seen as corresponding to the `TestCase` class in JUnit.
 
+The `Prop.forAll` method is a common way of creating properties in ScalaCheck.
+The forAll method takes an anonymous function as its parameter, and that function in turn takes parameters that are used to express a boolean condition.
+Basically, the `forAll` method is equivalent to what in logic is called a *universal quantifier*.
+When ScalaCheck tests a property created with the `forAll` method, it tries to *falsify* it by assigning different values to the parameters of the provided function, and evaluating the boolean result.
+If it can't locate a set of arguments that makes the property false, then ScalaCheck will regard the property as *passed*.
+
+```scala
+def alphaStr: Gen[String]
+```
+Generates a string of alpha characters
+
+```scala
+def numChar: Gen[Char]
+```
+Generates a numerical character
+
+Which types are available for use in a `forAll` property?
+ScalaCheck has built-in support for common Java and Scala types, so you can use ordinary types like integers, strings, dates, lists, arrays, and so on.
+However, you can also add support for any custom data type, by letting ScalaCheck know how to generate your type.
+
+For each property, ScalaCheck prints the test results, starting with an exclamation mark for failed properties and a plus sign for properties that passed the tests.
+
 ## ScalaCheck Fundamentals
 
 The two most fundamental concepts in ScalaCheck are *properties* and *generators*.
+
+This chapter will introduce the classes that represent properties in ScalaCheck, and bring up some technical details about the API.
+
+Generators are the other important part of ScalaCheck's core.
+A generator is responsible for producing the data passed as input to a property during ScalaCheck's verification phase.
 
 ### The `Prop` and `Properties` classes
 
@@ -46,9 +81,46 @@ It is always represented by an instance of the `org.scalacheck.Prop` class.
 
 The common way of creating property instances is by using the various methods from the `org.scalacheck.Prop` module.
 
+The second property uses `Prop.throws` that creates a property that tries to run a given statement each time the property is evaluated.
+Only if the statement throws the specified exception the property passes.
+
 When defining several related properties, ScalaCheck also has a class named `org.scalacheck.Properties` that can be used to group a bunch of properties together.
 It provides a way to label the individual property instances, and makes it easier for ScalaCheck to present the test results in a nice way.
 Using the `Properties` class is the preferred way of defining properties for your code.
+
+### Generators
+
+#### The `Gen` class
+
+A generator can be described simply as a function that takes some generation parameters and produces a value.
+In ScalaCheck, generators are represented by the `Gen` class, and the essence of this class looks like this:
+
+#### Defining custom generators
+
+As I've mentioned, there are many methods you can use to create your own generators in the `Gen` module.
+These methods are called *combinators*, since you can use them as basic building blocks for generating more complex structures and classes.
+To combine them together, you use Scala's versatile *for* statement, which is mostly used in loop constructs but in fact is much more general.
+
+#### Making explicit use of generators in properties
+
+However, you can instruct ScalaCheck explicitly to use a certain generator in a property definition.
+You can use `Prop.forAll` with one extra parameter to inform ScalaCheck which generator to use:
+```scala
+import org.scalacheck.{Gen, Prop}
+
+val evenInt = for {
+  n <- Gen.choose(-1000, 1000)
+} yield 2 * n
+
+val propDivide = Prop.forAll(evenInt) { n: Int =>
+  val half = n / 2
+  n == 2 * half
+}
+```
+
+#### Adding implicit support for custom generators
+
+However, you can also add implicit support for your own generators so you can write properties for your own classes in exactly the same way you would for the standard types, without explicitly specifying which generator to use in every property.
 
 ## Running ScalaCheck
 
