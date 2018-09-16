@@ -22,11 +22,19 @@ In this case, it is a type that will be defined further down the class hierarchy
 
 ## Path-dependent types
 
+So this shows that objects in Scala can have types as members.
+
+A path-dependent type resembles the syntax for an inner class type in Java, but there is crucial difference: a path-dependent type names an outer *object*, whereas an inner class type names an outer *class*.
+Java-style inner class types can also be expressed in Scala, but they are written differently.
+Consider these two classes, `Ounter` and `Inner`:
+```scala
+class Outer {
+  class Inner
+}
+```
+In Scala, the inner class is addressed using the expression `Outer#Inner` instead of Java's `Outer.Inner`.
+The `.` syntax is reserved for objects.
+
 ## Refinement types
 
-## Enumerations
-
-Scala does not need special syntax for enumerations.
-Instead, there's a class in its standard library, `scala.Enumeration`.
-
-To create a new enumeration, you define an object that extends this class.
+## [Enumerations](enumerations.md)
