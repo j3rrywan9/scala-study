@@ -101,6 +101,8 @@ As I've mentioned, there are many methods you can use to create your own generat
 These methods are called *combinators*, since you can use them as basic building blocks for generating more complex structures and classes.
 To combine them together, you use Scala's versatile *for* statement, which is mostly used in loop constructs but in fact is much more general.
 
+As I've said, data generators are not exclusively related to properties; you can use the `Gen` module as an API for defining data generators for any setting really.
+
 #### Making explicit use of generators in properties
 
 However, you can instruct ScalaCheck explicitly to use a certain generator in a property definition.
@@ -121,6 +123,44 @@ val propDivide = Prop.forAll(evenInt) { n: Int =>
 #### Adding implicit support for custom generators
 
 However, you can also add implicit support for your own generators so you can write properties for your own classes in exactly the same way you would for the standard types, without explicitly specifying which generator to use in every property.
+
+## Designing Properties
+
+The concept of a property is not hard to grasp; it's basically a boolean expression.
+The difficulty lies in transforming the ideas you have about your program's behavior into formal properties suitable for ScalaCheck's verification machinery.
+
+### Incomplete properties
+
+However, it can be hard to immediately come up with a ScalaCheck property that completely describes all behavioral aspects that you want to specify.
+Therefore, it is often easier to write properties in an iterative fashion.
+
+Start out with simple facts that you know always should hold true for your code.
+A starting question you can ask yourself is: What would be totally unacceptable?
+
+Properties like the ones above can act as a great support when you're starting out development of a piece of code, or when refactoring existing code.
+They provide definite boundaries for your implementations.
+Later on you can extend your properties with more complete conditions or simply add more properties, to cover more aspects of the functionality.
+
+### Relation properties
+
+A special form of incomplete properties are relation properties.
+Instead of specifying a unit of code against one input instance at a time, you can use two or more test cases in the same property and base your specification on the relation between the inputs.
+
+### Reference implementations
+
+One technique for writing complex specifications is to use a *reference implementation*.
+Instead of writing down the direct conditions that should hold, you make an indirect specification by relating your implementation to a known working one.
+The reference implementation can either be a well-used and tested one from a standard library, or a simple proof-of-concept implementation that you've written from scratch without any considerations other than correctness.
+The trusted reference implementation can be used to test that another, perhaps performance-optimized, version behaves correctly.
+
+### Restricting test cases
+
+Since ScalaCheck borrows much from logic when it comes to writing specifications, preconditions are specified as implications with the `==>` operator.
+You must import `Prop.BooleanOperators` to make this operator available.
+This module contains implicit methods that extend boolean values with various property-related operators and methods.
+
+When ScalaCheck tests this property, it skips over the cases where the precondition is not fulfilled, and regards them as *discarded*.
+Discarded test cases are not included in the total sum of passed tests for a property, which means that if the precondition is hard to fulfill when generating random test data, ScalaCheck might not be able to verify the property at all.
 
 ## Running ScalaCheck
 
