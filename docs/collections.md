@@ -197,6 +197,9 @@ These traits are named with a `Like` suffix.
 They parameterize not only over the collection's element type, but also over the collection's *representation* type (i.e., the type of the underlying collection).
 For instance, here is the header of trait `TraversableLike`:
 ```scala
-trait TraversableLike[+Elem, +Repr]
+trait TraversableLike[+A, +Repr]
 ```
-
+The trait declares two abstract methods, `newBuilder` and `foreach`, which are implemented in concrete collection classes.
+```scala
+protected[this] def newBuilder: Builder[A, Repr]
+```
