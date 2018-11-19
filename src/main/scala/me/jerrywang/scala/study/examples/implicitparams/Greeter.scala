@@ -2,11 +2,15 @@ package me.jerrywang.scala.study.examples.implicitparams
 
 import JoesPrefs._
 
-object Greeter extends App {
-  class PreferredPrompt(val preference: String)
+class PreferredPrompt(val preference: String)
+class PreferredDrink(val preference: String)
 
-  def greet(name: String)(implicit prompt: PreferredPrompt) = {
+object Greeter extends App {
+  def greet(name: String)(implicit prompt: PreferredPrompt, drink: PreferredDrink) = {
     println("Welcome, " + name + ". The system is ready.")
+    println(prompt.preference)
+    print("But while you work, ")
+    println("why not drink a cup of " + drink.preference + "?")
     println(prompt.preference)
   }
 
