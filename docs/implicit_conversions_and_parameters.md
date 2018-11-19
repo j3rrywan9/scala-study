@@ -126,6 +126,10 @@ Thus you can write `implicitly[Foo]` whenever you want to find an implicit objec
 
 Because this pattern is common, Scala lets you leave out the name of this parameter and shorten the method header by using a *context bound*.
 
+The syntax `[T : Ordering]` is a context bound, and it does two things.
+First, it introduces a type parameter `T` as normal.
+Second,it adds an implicit parameter of type `Ordering[T]`.
+
 ## When multiple conversions apply
 
 If one of the available conversions is strictly *more specific* than the others, then the compiler will choose the more specific one.
