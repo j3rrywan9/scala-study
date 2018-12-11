@@ -45,3 +45,44 @@ class NotifierImpl(val notificationMessage: String) extends Notifer {
 The only requirement here is for the variable to have the same name and to be preceded by the `val` keyword in the class definition.
 The reason for this behavior is simple: if we explicitly use `val` (or `var`), the compiler will create a field with a getter with the same scope as the parameter.
 For completeness, case classes automatically have the `val` keyword *prepended* to parameters. 
+
+#### Traits as classes
+
+Traits can also be seen from the perspective of classes.
+In this case, they have to implement all their methods and have only one constructor that does not accept any parameters.
+
+#### Extending classes
+
+It is possible for traits to extend classes.
+
+#### Extending traits
+
+Traits can also extend each other.
+
+### Mixin compositions
+
+Scala allows developers to extend many traits in a single class.
+This adds the possibility of achieving multiple inheritance and saves a lot of effort in code writing, which has to be performed in languages where extending many classes is not allowed.
+
+#### Mixing traits in
+
+#### Composing
+
+Composing at creation time gives us an opportunity to create anonymous classes without the need to explicitly define them.
+
+##### Composing simple traits
+
+##### Composing complex traits
+
+##### Composing with self-types
+
+```scala
+trait AlarmNotifier {
+  this: Notifier =>
+  
+  def trigger(): String
+}
+```
+In the preceding code, we've shown a **self-type*.
+The highlighted piece of code brings all the methods of `Notifier` to the scope of our new trait and it also requires that any class that mixes in `AlarmNotifier` should also mix in `Notifier`.
+Otherwise, a compilation error will occur.
