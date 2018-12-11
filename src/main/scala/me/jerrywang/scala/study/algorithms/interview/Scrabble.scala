@@ -1,10 +1,10 @@
 package me.jerrywang.scala.study.algorithms.interview
 
-import java.io.{ FileNotFoundException, IOException }
+import java.io.{FileNotFoundException, IOException}
 
 import com.typesafe.scalalogging.LazyLogging
 
-import scala.collection.mutable.{ ListBuffer, Map }
+import scala.collection.mutable.{ListBuffer, Map}
 import scala.io.Source
 import scala.io.StdIn.readLine
 
@@ -18,7 +18,7 @@ object Scrabble extends App with LazyLogging {
 
       map.get(sortedWord) match {
         case Some(listOfAnagrams) => listOfAnagrams += word
-        case None => map(sortedWord) = new ListBuffer[String] += word
+        case None                 => map(sortedWord) = new ListBuffer[String] += word
       }
     }
 
@@ -30,11 +30,11 @@ object Scrabble extends App with LazyLogging {
 
       map.get(sortedUserInput) match {
         case Some(listOfAnagrams) => println(listOfAnagrams.mkString("[", ", ", "]"))
-        case None => println("No valid English words found.")
+        case None                 => println("No valid English words found.")
       }
     }
   } catch {
     case _: FileNotFoundException => println("Couldn't find file " + WordsPath)
-    case _: IOException => println("Got an IOException!")
+    case _: IOException           => println("Got an IOException!")
   }
 }
