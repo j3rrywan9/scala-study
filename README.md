@@ -69,7 +69,7 @@ for (i <- 0 to 2)
   print(greetingStrings(i))
 ```
 
-## [Collections](docs/collections.md)
+## [Collections](doc/collections.md)
 
 ## Learn to recognize the functional style
 
