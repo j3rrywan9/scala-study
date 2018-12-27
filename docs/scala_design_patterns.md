@@ -86,3 +86,40 @@ trait AlarmNotifier {
 In the preceding code, we've shown a **self-type*.
 The highlighted piece of code brings all the methods of `Notifier` to the scope of our new trait and it also requires that any class that mixes in `AlarmNotifier` should also mix in `Notifier`.
 Otherwise, a compilation error will occur.
+
+## Unification
+
+### Functions and Classes
+
+In Scala, every value is an object.
+Functions are first-class values, which also makes them objects of their respective classes.
+
+## Abstract and Self Types
+
+### Self types
+
+Self types provide a way to handle these dependencies in an elegant way.
+
+#### Using self types
+
+##### Naming the self type
+
+In the preceding code, we included our self type using the statement - `this: Databaes[T] =>`.
+This allows us to access the methods of our included types directly as if they were methods of the trait that includes them.
+Another way of doing the same here is by writing `self: Database[T] =>` instead.
+There are many examples out there that use the latter approach, which is useful to avoid confusion if we need to refer to `this` in some nested trait or class definitions.
+Calling the methods of the injected dependencies using this approach, however, would require the developer to use `self.` in order to gain access to the required methods.
+
+## Creational Design Patterns
+
+### What are creational design patterns?
+
+Creational design patterns, as the name suggests, deal with object creation.
+
+### The factory method design pattern
+
+### The abstract factory
+
+## References
+
+* [Example code files](https://github.com/PacktPublishing/Scala-Design-Patterns-Second-Edition)
