@@ -66,6 +66,20 @@ This adds the possibility of achieving multiple inheritance and saves a lot of e
 
 #### Mixing traits in
 
+```scala
+object MixinRunner extends Ping with Pong {
+  def main(args: Array[String]): Unit = {
+    ping()
+    pong()
+  }
+}
+```
+As you can see from the preceding code, we can add multiple traits to a class.
+
+##### How to mix traits in?
+
+If a class already extends another class, we just keep on adding the traits using the `with` keyword.
+
 #### Composing
 
 Composing at creation time gives us an opportunity to create anonymous classes without the need to explicitly define them.
@@ -76,6 +90,7 @@ Composing at creation time gives us an opportunity to create anonymous classes w
 
 ##### Composing with self-types
 
+There are cases where we might actually want to enforce a trait to be mixed into a class that also has another trait or multiple traits mixed into it.
 ```scala
 trait AlarmNotifier {
   this: Notifier =>
@@ -86,6 +101,26 @@ trait AlarmNotifier {
 In the preceding code, we've shown a **self-type*.
 The highlighted piece of code brings all the methods of `Notifier` to the scope of our new trait and it also requires that any class that mixes in `AlarmNotifier` should also mix in `Notifier`.
 Otherwise, a compilation error will occur.
+
+### Multiple inheritance
+
+### Linearization
+
+As we already saw, traits offer a form of multiple inheritance.
+
+We will not have to deal with linearization in traits that contain no code.
+However, if we use mixins, we will have to consider it.
+
+#### Initialization
+
+The rule is that the constructor code is executed in a reverse order compared to the linearization order.
+This means that, going from right to left, first the `Any` and `AnyRef` constructors will be invoked and then the actual class constructor will be called.
+
+#### Method overriding
+
+When overriding a method in a subclass, you may want to call the original implementation as well.
+This is achieved by prefixing the `super` keyword to the method name.
+The developer also has control to qualify the `super` keyword with a trait type, thus calling the method in the specific trait.
 
 ## Unification
 
