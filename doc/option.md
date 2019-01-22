@@ -18,6 +18,11 @@ By contrast, Scala encourages the use of `Option` to indicate an optional value.
 ## API
 
 ```scala
+def isDefined: Boolean = !isEmpty
+```
+Returns true if the option is an instance of `scala.Some`, false otherwise.
+
+```scala
 @inline final def map[B](f: A => B): Option[B] =
   if (isEmpty) None else Some(f(this.get))
 ```
