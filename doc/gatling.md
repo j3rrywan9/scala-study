@@ -75,6 +75,35 @@ exec { session =>
 
 ##### pause
 
+## HTTP
+
+### HTTP Protocol
+
+#### Bootstrapping
+
+Use the `http` object in order to create an HTTP protocol.
+
+#### Core parameters
+
+##### Base URL
+
+#### Engine parameters
+
+#### Request building parameters
+
+##### Automatic Referer
+
+The `Referer` HTTP header can be automatically computed.
+This feature is enabled by default.
+
+To disable this feature, just add `.disableAutoReferer` to an HTTP Protocol Configuration definition.
+
+#### Response handling parameters
+
+##### Follow redirects
+
+By default Gatling automatically follow redirects in case of 301, 302, 303 or 307 response status code, you can disable this behavior with `.disableFollowRedirect`.
+
 ## Code Reading
 
 ```scala
@@ -122,6 +151,16 @@ trait ActionBuilder {
 }
 
 class SessionHookBuilder(sessionFunction: Expression[Session], exitable: Boolean) extends ActionBuilder with NameGen
+```
+
+```scala
+package io.gatling.http.cookie
+
+import io.netty.handler.codec.http.cookie.Cookie
+
+case class StoredCookie(cookie: Cookie, hostOnly: Boolean, persistent: Boolean, creationTime: Long)
+
+case class CookieJar(store: Map[CookieKey, StoredCookie])
 ```
 
 ## References
