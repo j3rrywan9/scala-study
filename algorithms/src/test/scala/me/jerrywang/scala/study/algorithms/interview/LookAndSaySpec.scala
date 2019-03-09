@@ -1,8 +1,8 @@
 package me.jerrywang.scala.study.algorithms.interview
 
 import org.scalacheck.Gen
-import org.scalatest.{Matchers, PropSpec}
 import org.scalatest.prop.PropertyChecks
+import org.scalatest.{ Matchers, PropSpec }
 
 class LookAndSaySpec extends PropSpec with PropertyChecks with Matchers {
   val randomSeed = Gen.choose(0, Int.MaxValue)

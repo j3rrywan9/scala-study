@@ -1,10 +1,9 @@
 package me.jerrywang.scala.study.algorithms.interview
 
-import java.io.{FileNotFoundException, IOException}
+import java.io.{ FileNotFoundException, IOException }
 
 import com.typesafe.scalalogging.LazyLogging
-
-import scala.collection.mutable.{ListBuffer, Map}
+import scala.collection.mutable.{ ListBuffer, Map }
 import scala.io.Source
 import scala.io.StdIn.readLine
 
