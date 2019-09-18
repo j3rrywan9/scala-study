@@ -1,8 +1,19 @@
 # Implicit Conversions and Parameters
 
+There's a fundamental difference between your own code and other people's libraries: You can change or extend your own code as you wish, but if you want to use someone else's libraries, you usually have to take them as they are.
+A number of constructs have sprung up in programming languages to alleviate this problem.
+
+Scala's answer is implicit conversions and parameters.
+These can make existing libraries much more pleasant to deal with by letting you leave out tedious, obvious details that obscure the interesting parts of your code.
+
 ## Implicit conversions
 
+Implicit conversions are often helpful for working with two bodies of software that were developed without each other in mind.
+Each library has its own way to encode a concept that is essentially the same thing. 
+Implicit conversions help by reducing the number of explicit conversions that are needed from one type to another.
+
 The first step is to write an implicit conversion between the two types.
+Here is an implicit conversion from functions to action listeners:
 ```scala
 implicit def function2ActionListener(f: ActionEvent => Unit) =
   new ActionListener {
@@ -10,9 +21,21 @@ implicit def function2ActionListener(f: ActionEvent => Unit) =
   }
 ```
 This is a one-argument method that takes a function and returns an action listener.
-
+Like any other one-argument method, it can be called directly and have its result passed on to another expression:
+```scala
+button.addActionListener(
+  function2ActionListener(
+    (_: ActionEvent) => println("pressed!")
+  )
+)
+```
 Because `function2ActionListener` is marked as implicit, it can be left out and the compiler will insert it automatically.
-
+Here is t he result:
+```scala
+button.addActionListener(
+  (_: ActionEvent) => println("pressed!")
+)
+```
 The way this code works is that the compiler first tries to compile it as is, but it sees a type error.
 Before giving up, it looks for an implicit conversion that can repair the problem.
 It tries that conversion method, sees that it works, and moves on.
@@ -37,6 +60,9 @@ Code that uses the library can then do a single "`import Preamble._`" to access 
 There's one exception to the "single identifier" rule.
 The compiler will also look for implicit definitions in the companion object of the source or expected target types of the conversion.
 
+The Scope Rule helps with modular reasoning.
+When you read code ina file, the only things you need to consider from other files are those that are either imported or are explicitly referenced through a fully qualified name.
+
 ### Naming an implicit conversion
 
 Implicit conversions can have arbitrary names.
@@ -57,7 +83,7 @@ Implicit parameters, on the other hand, are usually used to provide more informa
 
 Implicit conversion to an expected type is the first place the compiler will use implicits.
 The rule is simple.
-Whenever the compiler sees an X, but needs a Y, it will look for an implicit function that converts X to Y.
+Whenever the compiler sees an `X`, but needs a `Y`, it will look for an implicit function that converts `X` to `Y`.
 
 The `scala.Predef` object, which is implicitly imported into every Scala program, defines implicit conversions that convert "smaller" numeric types to "larger" ones.
 
