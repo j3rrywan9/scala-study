@@ -168,17 +168,17 @@ sbt reads all the settings defined in your build at load time and runs their ini
 A setting consists of three parts: a key, an initialization, and an operator that associates the key and initialization.
 A setting is used to change an aspect of the build or add functionality.
 
-> Typesafe settings
+>Typesafe settings
 >
-> In sbt, every key has one and only one type.
-> Any value placed into a setting must match the exact type.
-> This prevents mismatched data from being passed around the build.
+>In sbt, every key has one and only one type.
+>Any value placed into a setting must match the exact type.
+>This prevents mismatched data from being passed around the build.
 
-> Defining dependencies
+>Defining dependencies
 >
-> sbt provides a convenient syntax for defining dependencies on remote artifacts using the `%` method.
-> This method is used to create `ModuleID` instances.
-> To define a `ModuleID` in sbt, write `"groupId" % "artifactId" % "version"` and it will automatically become an instance of a `ModuleID`.
+>sbt provides a convenient syntax for defining dependencies on remote artifacts using the `%` method.
+>This method is used to create `ModuleID` instances.
+>To define a `ModuleID` in sbt, write `"groupId" % "artifactId" % "version"` and it will automatically become an instance of a `ModuleID`.
 
 The `libraryDependencies` key holds a value of type `Seq[ModuleID]`.
 The `+=` operator is used to take the previous value assigned to the `libraryDependencies` setting and append the new `ModuleID` value to it.
@@ -192,6 +192,19 @@ In sbt, an initialization is a Scala expression that can produce a value, and it
 
 An *initialization* is an expression that produces a value and may use other settings to do so.
 You can access the value of another setting using the `value` method.
+
+>Initializations are code
+>
+>Initializations are Scala code.
+>You can read environment variables, properties, files, or anything else available in the JVM.
+>sbt attempts to run all the initializations for a build when it starts.
+>Any failures in an initialization will cause the build to fail to load, so make sure to catch exceptions as needed when defining initializations for settings!
+
+Initializations can be created from more than one setting.
+
+>Circular references
+>
+>Because sbt can use values of one setting to instantiate another, it's possible to create circular references.
 
 ### Creating and executing tasks
 
