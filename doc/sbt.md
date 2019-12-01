@@ -206,6 +206,17 @@ Initializations can be created from more than one setting.
 >
 >Because sbt can use values of one setting to instantiate another, it's possible to create circular references.
 
+To recap, in sbt there are three operators used to create settings:
+
+| Operator | Usage |
+| --- | --- |
+| `:=` | Assigns an initialization expressions to a key. Overrides any previous value. |
+| `+=` | Appends an initialization expression to the existing sequence in a key. |
+| `++=` | Appends an initialization of a sequence of values to the existing sequence in a key. |
+
+>One operator to rule them all
+>In sbt all settings can be implemented in terms of the `:=` operator.
+
 ### Creating and executing tasks
 
 Builds are about accomplishing tasks, from running a compiler to generating zip files for distribution.
@@ -213,30 +224,91 @@ Tasks are the means to repeatedly perform some operation, like compiling your pr
 In sbt a task is like a setting that runs every time you request its value.
 That is, every time you make a request to sbt's task engine, each task required will be run once for that request.
 
-### Defining with  subprojects
+```sbt
+val gitHeadCommitSha = taskKey[String] (
+  "Determines the current git commit SHA"
+)
+```
+This is a *definition* in sbt.
+A definition defines a variable or method for reuse within sbt settings.
+In sbt, definitions are compiled first and can reference previous definitions.
+That's why definitions are defined using the `=` operator and not the `:=` operator.
+A definition isn't assigning a value into a setting but is defining some Scala code to help define the build.
 
-In sbt, the default project settings assume that each project has its own base directory.
-Each project in your build should have its own base directory that's different from any other project.
-Within this base directory, you'll find the directories for source code, testing code, and so on.
+Because settings are executed after definitions, settings can refer to any definition in the build file.
+
+```sbt
+gitHeadCommitSha := Process("git rev-parse HEAD").lineStream.head
+```
+The way to think of this process is that the definition (=) is constructing a new slot where computed build values can go.
+The setting (:=) is constructing a function that will compute the value for the slot when needed.
+
+#### Task dependencies
+
+Just as settings may depend on other settings, tasks may also depend on settings as well as the output from other tasks.
+When the user requests a task to be executed, sbt will run all of the dependent tasks (once) and pass their values to the requested task.
+
+### Using configurations
+
+Configurations are namespaces for keys.
+They allow the same key to be reused to serve different purposes.
+sbt comes with several configurations in the default build
+
+These configurations are used to split settings and tasks across higher-level goals.
+For example, the task defined at `sources in Compile` collects the source files that will be compiled for your production artifacts, whereas `sources in Test` defines the source files that will be compiled to run your unit tests.
+
+### Defining with subprojects
+
+After creating the new subproject, restart sbt and try to interact with it.
+First run the `reload` command in the sbt prompt so your new `build.sbt` definition is compiled and loaded:
+```
+> reload
+```
+Next run the `projects` command to see if your new subproject shows up:
+```
+> projects
+```
+
+>Projects need their own directories
+>
+>In sbt, the default project settings assume that each project has its own base directory.
+>Each project in your build should have its own base directory that's different from any other project.
+>Within this base directory, you'll find the directories for source code, testing code, and so on.
 
 The root directory is the default target for settings found in the `build.sbt` file.
 This means that all the configuration you have so far for testing applies only to code in the root project.
 
 Project dependencies are defined using the `dependsOn` method of `Project`.
 
-#### Project definition order matters!
+>Project definition order matters!
+>
+>Just like any other Scala object, any values defined can't be referenced before they're declared.
+>Because of this, it drastically simplifies life to declare projects using `lazy val`s.
+>It's such a common issue with circular references that we recommend always using `lazy val`s to define projects.
+>In sbt, across all projects, tasks are structured as a dependency graph.
+>sbt will ensure that tasks from one project are executed before they're used by another project.
 
-Just like any other Scala object, any values defined can't be referenced before they're declared.
-Because of this, it drastically simplifies life to declare projects using `lazy val`s.
-It's such a common issue with circular references that we recommend always using `lazy val`s to define projects.
+### Putting it all together
 
-## The default build
+sbt is built on top of Scala, an expressive language with a lot of nice features.
+You can start using these to reduce clutter in your build and ensure that it's easy to maintain.
+You'll start by reducing some of the clutter in creating your projects.
+
+Now that the task is attached to the build itself, you only have to define it once, but all projects can make use of its results.
+This is great for files/settings that are truly shared across all projects, because it means sbt will execute the task only once for all projects that request the value.
+Also it means that you don't have to redefine the setting in every project that needs it.
+By default, if sbt doesn't find a task/setting for a key in a given project, it will fall back to task/settings defined in the build itself.
+
+## Chapter 4. The default build
 
 ### Compiling your code
 
 One of the primary purposes of a build tool is to compile code.
 But in order to compile code, sbt first needs to know a few things.
 You can ask sbt what it needs using the `inspect tree` command on the sbt prompt.
+
+The command's output is an ASCII tree detailing which tasks/settings the compile task depends on and what values those settings/tasks return.
+This command is available against any sbt task/setting, and it's an amazing resource when learning how a new project works.
 
 As shown in this more easily readable tree, compilation requires three things:
 * A sequence (list) of source files
@@ -246,7 +318,12 @@ As shown in this more easily readable tree, compilation requires three things:
 ### Finding your sources
 
 As it does for many other aspects of a build, sbt applies certain conventions when looking for your source code.
-But you can easily customize the way sources are organized, if necessary
+But you can easily customize the way sources are organized, if necessary.
+
+>Convention over configuration
+>
+>It has become a widely adopted paradigm in software engineering to make it as easy as possible for the users to get simple things done by minimizing the number of explicit decisions necessary through conventions.
+>On the other hand, it should still be possible to get complex things done by defining nonstandard aspects through configuration.
 
 #### Standard organization of sources
 
@@ -254,11 +331,29 @@ You can see that the list of sources is taken from two aggregates:
 * **unmanagedSources** - A discovered list of source files using standard project conventions
 * **managedSources** - A list of sources that are either generated from the build or manually added
 
-For sbt, the unmanaged sources are discovered by convention.
+For sbt, the unmanaged sources are discovered *by convention*.
 Unmanaged means you (not sbt) have to do the work of adding, modifying, and tracking the source files, whereas managed source files are ones that sbt will create and track for you.
 
 Unmanaged sources make use of a set of file filters and a default set of directories to produce the sequence of source files for the project.
 As shown in the dependency tree, the directories defined by the `javaSource` and `scalaSource` settings make up the set of directories where sbt looks for sources.
+Let’s see what these settings are by default (the convention):
+```
+> show javaSource
+[info] progfun / Compile / javaSource
+[info] 	/Users/jwang/scala-notes/progfun/src/main/java
+[info] Compile / javaSource
+[info] 	/Users/jwang/scala-notes/src/main/java
+
+> show scalaSource
+[info] progfun / Compile / scalaSource
+[info] 	/Users/jwang/scala-notes/progfun/src/main/scala
+[info] Compile / scalaSource
+[info] 	/Users/jwang/scala-notes/src/main/scala
+```
+By default, the set of sources that sbt uses for a project comes from the src/main/java directory and the src/main/scala directory.
+These directories are scanned for files, and those files that pass the default filters are used in compilation.
+
+Similar to how sbt has a `sources` task to collect sources, there's a corresponding `resources` task, which collects all the files that should be available at runtime.
 
 #### Testing sources
 
@@ -272,7 +367,7 @@ You can inspect the dependency tree for test sources by running the `inspect tre
 ```sbt
 inspect tree test:sources
 ```
-You may notice that the test:sources task uses the exact same lookup as the `compile:sources` task.
+You may notice that the `test:sources` task uses the exact same lookup as the `compile:sources` task.
 That's because under the covers, sbt is using the same set of settings to find your source files.
 sbt does this same thing with the resources task, creating settings for configuring testing resources under the `test:resources` task.
 
@@ -282,14 +377,21 @@ The lowest setting in the tree, `sourceDirectory`, which has type `File` in the 
 By default it depends on another setting of type File: `baseDirectory`, which points to the base directory of your project.
 `sourceDirectory` points to a new `src` child directory underneath the project's `baseDirectory`.
 
+Conceptually, this is sbt's default `sourceDirectory` configuration:
+```sbt
+sourceDirectory := new File(baseDirectory.value, "src")
+```
+
 ### Depending on libraries
+
+It's practically impossible these days to work on a project without relying on libraries or other projects.
 
 The dependencies are split into two parts:
 * **Internal dependencies** - These are the dependencies between projects defined in the current sbt build.
 * **External dependencies** - These are dependencies that must be pulled from somewhere outside, via Ivy or the filesystem.
 
 Whereas internal dependencies are calculated using the project `dependsOn` method, external dependencies are a bit more involved.
-They’re further split into the following two components:
+They're further split into the following two components:
 * **Unmanaged dependencies** - These are external dependencies sbt discovers from default locations.
 * **Managed dependencies** - These are external dependencies you specify in the sbt build.
 These dependencies are resolved by the `update` task.
@@ -299,12 +401,20 @@ These dependencies are resolved by the `update` task.
 #### Managed dependencies
 
 The recommended approach to library dependencies is using managed dependencies.
-If you’ve been using Maven, Gradle, or some other advanced build tool, the concept of declarative library management won't be new.
+If you've been using Maven, Gradle, or some other advanced build tool, the concept of declarative library management won't be new.
 sbt's managed dependencies are similar: you declare one or more library dependencies in the build definition, and sbt will download these from a repository and put these on the classpath when needed.
+
+Although managedDependencies can be used to specify files/jars directly, it's recommended to directly use Ivy and the `update` task.
+
+The `update` task makes use of the configuration of Ivy for sbt and the configuration of the current project, called a *module* in Ivy.
+The `ivySbt` task pulls in all the global configuration of Ivy, like where to look for dependencies and what credentials to use.
+The `ivyModule` task pulls together all the configuration for the current project, like what its identifier (name) is, what dependencies it has, and what artifacts it will produce.
 
 The most important setting to know about IvySbt is the `resolvers` setting.
 This is where you can specify how and where to find libraries.
 Although Ivy supports configurable lookup mechanisms, most projects make use of sbt's default, which is to load from a Maven repository.
+
+Now that you have a location from where you'll pull artifacts, you can start configuring what artifacts to pull.
 
 The `libraryDependencies` setting is defined as a collection of `ModuleID` values.
 `ModuleID` is an sbt abstraction to simplify the declaration of dependencies.
@@ -314,12 +424,22 @@ These are Ivy's variants of Maven's `groupId`, `artifactId`, and `version` attri
 
 In sbt, you can define a module ID using the `%` method against strings.
 Simply specify the organization, name, and revision separated by `%`.
+```sbt
+libraryDependencies ++= Seq(
+  "org.slf4j" % "slf4j-api" % "1.7.2",
+  "ch.qos.logback" % "logback-classic" % "1.0.7"
+)
+```
+As you can see, you're using strings to define `organization`, `name`, and `revision` of the two library dependencies.
+The individual strings are combined with the `%` operator, which is provided by sbt as an extension method to `String` and creates a `ModuleID` as a result.
 
 When it comes to dependencies on Scala libraries, you need to pay special attention to binary compatibility.
 You have to use a version of the library that was compiled against the same or at least a binary-compatible version of Scala, like the one we're using for our project.
 
 sbt has established a de facto standard where the Scala version is encoded in the `name` of the library by name mangling.
-Actually, it's not the full Scala version that's added to the `name` but only the Scala binary version, which by default consists of the major and minor version numbers; for example, 2.10.
+Actually, it's not the full Scala version that's added to the `name` but only the Scala binary version, which by default consists of the major and minor version numbers; for example, `2.10`.
+
+Although this works, it's not only cumbersome to write the names of library dependencies is this fashion, but also error-prone.
 
 Therefore, sbt offers a convenient and safe way to declare dependencies on cross-compiled Scala libraries.
 Instead of the `%` operator, you use the `%%` operator between the `organization` and `name` and omit adding the Scala binary version to the name:
@@ -333,6 +453,9 @@ This is as easy as before, and sbt will automatically create a `ModuleID`, which
 
 #### Managed dependencies and configurations
 
+Therefore, ScalaTest and all its transient dependencies have to be on the classpath.
+But because these library dependencies are needed only to compile the test sources, it would be a bad idea to define them globally.
+Instead, you can add the proper configuration to a `ModuleID`:
 ```sbt
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.0.5" % "test"
@@ -343,7 +466,10 @@ By default, all dependencies are put onto the default configuration, used for bo
 
 ### Packaging your project
 
-The default sbt build is oriented around open source JVM libraries.
+But there's a transformation that must happen between raw output of the compiler and the web server before you can deploy your software.
+This is known as *packaging*.
+
+The default sbt build is oriented around *open source JVM libraries*.
 This means that, by default, sbt will package your project as reusable jar files that can be published to Ivy or Maven repositories and consumed by others.
 Publishing to Ivy or Maven requires a few things:
 * A jar file containing the library to share
@@ -351,3 +477,15 @@ Publishing to Ivy or Maven requires a few things:
 * A jar file containing the documentation (Scaladoc or Javadoc) of the shared library
 * A configuration file (pom.xml or ivy.xml) that identifies the project and where it came from
 
+#### Identifying your project
+
+Every project in an sbt build should have a sensible name.
+Because this name will be used for artifacts created while packaging your project—for example, for jar files—you should use an expressive and sensible name.
+This can be defined via the name setting:
+```sbt
+name := "Scala Notes"
+```
+Obviously, name is of type `Setting[String]`.
+For a multimodule build (that is, one with multiple projects) it's common practice to have a base name with a suffix for each particular project.
+
+## Chapter 5. Testing
