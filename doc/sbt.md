@@ -489,3 +489,48 @@ Obviously, name is of type `Setting[String]`.
 For a multimodule build (that is, one with multiple projects) it's common practice to have a base name with a suffix for each particular project.
 
 ## Chapter 5. Testing
+
+### Configuring specs2 with sbt
+
+### JUnit and using custom code
+
+### ScalaCheck
+
+ScalaCheck is a test framework that's designed for property-based testing.
+
+### Integration testing
+
+## Chapter 6. The IO and Process libraries
+
+Normally, when you package using sbt, it will create a jar containing just your classes.
+But you want to package the application into a runnable jar so that it can be deployed to another server for system testing and eventually production.
+For this you'll use the built-in sbt IO library.
+This way, you're testing what you'll eventually deploy.
+
+### Packaging using processes
+
+### Packaging using the `sbt.IO` library
+
+But in sbt, you generally don't need to do this, because sbt has a lot of built-in methods available by default in the `sbt.IO` package, and these are designed to be OS independent.
+
+### More mappings
+
+### Task dependencies
+
+How do you declare that one task depends on another?
+This is simple: you can define the inputs to a task by simply referencing the value inside the task.
+
+It's as simple as that.
+When the `build.sbt` is being compiled, sbt will read these dependencies and construct a dependency tree to determine which task can be executed when.
+
+### Logging using the sbt logger
+
+Sometimes it's useful to know what's going on in a task, especially if the task fails.
+sbt provides a standard logging framework, called `Streams`, to enable you to add output to trace the build.
+Adding this to your tasks is easy: you use `streams.value.log`.
+This is a reference to the streams task, which provides per task logging and I/O via a `Streams` instance.
+Using this has a number of advantages over a simple `println`.
+
+## Chapter 7. Accepting user input
+
+## Chapter 8. Using plugins and external libraries
