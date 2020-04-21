@@ -7,5 +7,5 @@ trait Notifier {
     println(notificationMessage)
   }
 
-  def clear()
+  def clear(): Unit
 }

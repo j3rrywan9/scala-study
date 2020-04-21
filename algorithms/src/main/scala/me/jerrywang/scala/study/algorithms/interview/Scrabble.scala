@@ -13,7 +13,7 @@ object Scrabble extends App with LazyLogging {
 
   try {
     for (word <- Source.fromFile(WordsPath).getLines) {
-      val sortedWord = word.toLowerCase.sorted
+      val sortedWord = word.toSeq.sorted.unwrap
       map(sortedWord) = map.getOrElse(sortedWord, new ListBuffer[String]) += word
     }
 
@@ -21,7 +21,7 @@ object Scrabble extends App with LazyLogging {
 
     while (true) {
       val userInput = readLine("What letters? ")
-      val sortedUserInput = userInput.toLowerCase.sorted
+      val sortedUserInput = userInput.toLowerCase.toSeq.sorted.unwrap
 
       map.get(sortedUserInput) match {
         case Some(listOfAnagrams) => println(listOfAnagrams.mkString("[", ", ", "]"))

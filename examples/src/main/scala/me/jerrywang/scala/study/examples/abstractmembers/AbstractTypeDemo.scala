@@ -8,7 +8,7 @@ object AbstractTypeDemo extends App {
       * Abstract type with upper bound.
       */
     type SuitableFood <: Food
-    def eat(food: SuitableFood)
+    def eat(food: SuitableFood): Unit
   }
 
   class Grass extends Food

@@ -1,6 +1,6 @@
 package me.jerrywang.scala.study.examples.designpatterns.decorator
 
-import java.io.{BufferedInputStream, BufferedReader, InputStreamReader}
+import java.io.{ BufferedInputStream, BufferedReader, InputStreamReader }
 
 object StackableTraitsExample {
   def main(args: Array[String]): Unit = {
