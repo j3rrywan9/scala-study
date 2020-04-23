@@ -179,17 +179,38 @@ It does not matter whether the collection class represents a concrete implementa
 
 Besides `apply`, every collection companion object also defines a member `empty`, which returns an empty collection.
 
-## Builders
+## The Architecture of Scala Collections
 
-Almost all collection operations are implemented in terms of *traversals* and *builders*.
-Traversals are handled by `Traversable`'s `foreach` method, and building new collections is handled by instances of class `Builder`.
+The principal design objective of the collections framework is to avoid any duplication, defining every operation in as few places as possible.
+The approach is to implement most operations in "template traits" that can be mixed into individual collection base and implementation classes.
 
-Builders are generic in both the element type, `Elem`, and in the type, `To`, of collections they return.
+### Factoring out common operations
 
-Often, a builder can refer to some other builder for assembling the elements of a collection, but then would like to transform the result of the other builder - for example, to give it a different type.
-This task is simplified by method `mapResult` in class `Builder`.
+The main design objective of the collection library is to provide natural types to users while sharing as much implementation code as possible.
+In particular, Scala's collection framework needs to support the following aspects of various concrete collection types:
+* Some transformation operations return the same concrete collection type.
+For example, `filter` on `List[Int]` returns `List[Int]`.
+* Some transformation operations return the same concrete collection type with possibly a different type of elements.
+For example, `map` on `List[Int]` can return `List[String]`.
+* Some collection types, such as `List[A]`, have a single type parameter, whereas others, like `Map[K, v]`, have two.
+* Some operations on collection return a different concrete collection depending on an element type.
+For example, `map` on `Map` returns another `Map` if the mapping function results in a key-value pair, but otherwise returns an `Iterable`.
+* Transformation operations on certain collection types require additional implicit parameters.
+For example, `map` on `SortedSet` requires an implicit `Ordering`.
+* Lastly, some collections, such as `List`, are strict, while other collections, like `View` and `LazyList`, are non-strict.
 
-## Factoring out common operations
+The collection framework's template traits abstract over the above list of differences between various collections.
+In the rest of this section, you will find out how this is achieved.
+
+#### Abstracting over collection types
+
+The `IterableOps` template trait implements the operations available on the `Iterable[A]` collection type.
+`IterableOps` is defined like this:
+```scala
+trait IterableOps[+A, +CC[_], +C]
+```
+`IterableOps` declares three type parameters named `A`, `CC`, and `C`.
+For an `Iterable` that extends `IterableOps`, `A` defines its element type, `CC` its type constructor, and `C` its complete type.
 
 The Scala collection library avoids code duplication and achieves the "same-result type" principle by using generic builders and traversals over collections in so-called *implementation traits*.
 These traits are named with a `Like` suffix.
@@ -203,3 +224,5 @@ The trait declares two abstract methods, `newBuilder` and `foreach`, which are i
 ```scala
 protected[this] def newBuilder: Builder[A, Repr]
 ```
+
+### Integrating new collections
