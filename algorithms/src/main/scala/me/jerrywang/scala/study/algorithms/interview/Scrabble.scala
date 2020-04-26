@@ -3,18 +3,18 @@ package me.jerrywang.scala.study.algorithms.interview
 import java.io.{ FileNotFoundException, IOException }
 
 import com.typesafe.scalalogging.LazyLogging
-import scala.collection.mutable.{ ListBuffer, Map }
+import scala.collection.mutable
 import scala.io.Source
 import scala.io.StdIn.readLine
 
 object Scrabble extends App with LazyLogging {
   val WordsPath = "/usr/share/dict/words"
-  val map = Map.empty[String, ListBuffer[String]]
+  val map = mutable.Map.empty[String, mutable.ListBuffer[String]]
 
   try {
     for (word <- Source.fromFile(WordsPath).getLines) {
       val sortedWord = word.toSeq.sorted.unwrap
-      map(sortedWord) = map.getOrElse(sortedWord, new ListBuffer[String]) += word
+      map(sortedWord) = map.getOrElse(sortedWord, new mutable.ListBuffer[String]) += word
     }
 
     map.foreach { case (sortedWord, listOfAnagrams) => logger.debug(sortedWord + " -> " + listOfAnagrams.mkString("(", ", ", ")")) }
