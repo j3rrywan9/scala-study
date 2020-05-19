@@ -20,6 +20,7 @@
     <gatling.version>3.0.3</gatling.version>
     <gatling-plugin.version>3.0.1</gatling-plugin.version>
     <http4s.version>0.21.0-M5</http4s.version>
+    <json4s.version>3.6.7</json4s.version>
     <logback.version>1.2.3</logback.version>
     <scala.major.version>2.13</scala.major.version>
     <scala.minor.version>0</scala.minor.version>
@@ -204,6 +205,11 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-jetty</artifactId>
       <version>${spring-boot.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.json4s</groupId>
+      <artifactId>json4s-jackson_${scala.major.version}</artifactId>
+      <version>${json4s.version}</version>
     </dependency>
   </dependencies>
 </project>
