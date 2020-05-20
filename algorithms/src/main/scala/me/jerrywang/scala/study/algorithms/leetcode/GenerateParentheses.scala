@@ -24,6 +24,6 @@ object GenerateParentheses {
   }
 
   def main(args: Array[String]): Unit = {
-    println(GenerateParentheses.generateParenthesis(3).mkString(", "))
+    println(GenerateParentheses.generateParenthesis(3).mkString("[", ", ", "]"))
   }
 }
