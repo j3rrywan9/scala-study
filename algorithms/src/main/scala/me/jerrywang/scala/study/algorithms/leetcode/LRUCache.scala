@@ -5,7 +5,7 @@ import scala.collection.mutable
 // LC 146
 case class DoubleLinkedNode(var key: Int = 0, var value: Int = 0, var prev: DoubleLinkedNode = null, var next: DoubleLinkedNode = null)
 
-case class LRUCache(cache: mutable.HashMap[Int, DoubleLinkedNode] = mutable.HashMap.empty, capacity: Int = 0, head: DoubleLinkedNode = null, tail: DoubleLinkedNode = null) {
+class LRUCache(cache: mutable.HashMap[Int, DoubleLinkedNode], size: Int, capacity: Int, head: DoubleLinkedNode, tail: DoubleLinkedNode) {
 
   private def addNode(node: DoubleLinkedNode): Unit = {
     node.prev = head
@@ -32,6 +32,16 @@ case class LRUCache(cache: mutable.HashMap[Int, DoubleLinkedNode] = mutable.Hash
     val node = tail.prev
     removeNode(node)
     node
+  }
+
+  def this(capacity: Int) {
+    this(cache = mutable.HashMap.empty, size = 0, capacity = capacity, head = DoubleLinkedNode(), tail = DoubleLinkedNode())
+
+    head.prev = null
+    tail.next = null
+
+    head.next = tail
+    tail.prev = head
   }
 
   def get(key: Int): Int = {
@@ -63,15 +73,8 @@ case class LRUCache(cache: mutable.HashMap[Int, DoubleLinkedNode] = mutable.Hash
 
 object LRUCache {
 
-  def apply(capacity: Int): LRUCache = {
-    val lruCache = new LRUCache(capacity = capacity, head = DoubleLinkedNode(), tail = DoubleLinkedNode())
-    lruCache.head.next = lruCache.tail
-    lruCache.tail.prev = lruCache.head
-    lruCache
-  }
-
   def main(args: Array[String]): Unit = {
-    val lruCache = LRUCache(10)
+    val lruCache = new LRUCache(10)
 
     for (i <- 0 until 12)
       lruCache.put(i, i + 10)
