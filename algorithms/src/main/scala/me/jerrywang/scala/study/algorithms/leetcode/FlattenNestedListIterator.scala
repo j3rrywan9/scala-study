@@ -1,24 +1,28 @@
 package me.jerrywang.scala.study.algorithms.leetcode
 
+import scala.collection.mutable
+
+// LC 341
 class FlattenNestedListIterator(nestedList: Seq[NestedInteger]) extends Iterator[Int] {
 
-  private val integers = Seq.empty[Int]
-  private var position = 0
-
-  private def flattenList(nestedList: Seq[NestedInteger]): Unit = {
-    for (nestedInteger <- nestedList)
-      if (nestedInteger.isInteger) integers.+:(nestedInteger.getInteger)
-      else flattenList(nestedInteger.getList)
-  }
-
-  flattenList(nestedList)
+  private val stack = mutable.ArrayDeque.from(nestedList)
 
   override def next: Int = {
     if (!hasNext) throw new NoSuchElementException
-    val nextInteger = integers(position)
-    position += 1
-    nextInteger
+    stack.removeHead().getInteger
   }
 
-  override def hasNext: Boolean = position < integers.size
+  override def hasNext: Boolean = {
+    makeStackTopAnInteger()
+    stack.nonEmpty
+  }
+
+  private def makeStackTopAnInteger(): Unit = {
+    while (stack.nonEmpty && !stack.head.isInteger) {
+      val nestedList = stack.removeHead().getList
+
+      for (i <- nestedList.size - 1 to 0 by -1)
+        nestedList(i) +=: stack
+    }
+  }
 }
