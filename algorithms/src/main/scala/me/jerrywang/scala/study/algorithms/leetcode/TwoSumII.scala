@@ -3,7 +3,7 @@ package me.jerrywang.scala.study.algorithms.leetcode
 // LC 167
 object TwoSumII {
 
-  def twoSum(numbers: Array[Int], target: Int): (Int, Int) = {
+  def twoSum(numbers: Array[Int], target: Int): Array[Int] = {
     var l = 0
     var r = numbers.length - 1
 
@@ -11,6 +11,6 @@ object TwoSumII {
       if (numbers(l) + numbers(r) < target) l += 1
       else r -= 1
 
-    (l + 1, r + 1)
+    Array(l + 1, r + 1)
   }
 }
