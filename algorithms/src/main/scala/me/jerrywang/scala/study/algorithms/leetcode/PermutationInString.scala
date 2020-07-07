@@ -1,7 +1,7 @@
 package me.jerrywang.scala.study.algorithms.leetcode
 
 // LC 567
-object CheckInclusion {
+object PermutationInString {
 
   def checkInclusion(s1: String, s2: String): Boolean = {
     if (s1.length> s2.length)
@@ -38,9 +38,5 @@ object CheckInclusion {
     }
 
     true
-  }
-
-  def main(args: Array[String]): Unit = {
-    println(CheckInclusion.checkInclusion("ab", "eidbaooo"))
   }
 }
