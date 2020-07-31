@@ -7,7 +7,7 @@ class FlattenNestedListIterator(nestedList: Seq[NestedInteger]) extends Iterator
 
   private val stack = mutable.ArrayDeque.from(nestedList)
 
-  override def next: Int = {
+  override def next(): Int = {
     if (!hasNext) throw new NoSuchElementException
     stack.removeHead().getInteger
   }

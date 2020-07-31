@@ -27,7 +27,7 @@ object StringToInteger {
         val digit = trimmedStr.charAt(i) - '0'
 
         if (digit < 0 || digit > 9)
-          break
+          break()
         if (ans > Int.MaxValue / 10 || (ans == Int.MaxValue / 10 && Int.MaxValue % 10 < digit)) {
           return if (sign == 1) Int.MaxValue else Int.MinValue
         }

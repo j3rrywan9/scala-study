@@ -34,7 +34,7 @@ class LRUCache(cache: mutable.HashMap[Int, DoubleLinkedNode], size: Int, capacit
     node
   }
 
-  def this(capacity: Int) {
+  def this(capacity: Int) = {
     this(cache = mutable.HashMap.empty, size = 0, capacity = capacity, head = DoubleLinkedNode(), tail = DoubleLinkedNode())
 
     head.prev = null

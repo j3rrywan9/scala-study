@@ -12,7 +12,7 @@ object Scrabble extends App with LazyLogging {
   val map = mutable.Map.empty[String, mutable.ListBuffer[String]]
 
   try {
-    for (word <- Source.fromFile(WordsPath).getLines) {
+    for (word <- Source.fromFile(WordsPath).getLines()) {
       val sortedWord = word.toSeq.sorted.unwrap
       map(sortedWord) = map.getOrElse(sortedWord, new mutable.ListBuffer[String]) += word
     }

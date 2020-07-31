@@ -22,7 +22,7 @@ object VerifyingAnAlienDictionary {
             if (index(word1.charAt(j) - 'a') > index(word2.charAt(j) - 'a'))
               return false
 
-            break
+            break()
           } else {
             if (word1.length > word2.length)
               return false
