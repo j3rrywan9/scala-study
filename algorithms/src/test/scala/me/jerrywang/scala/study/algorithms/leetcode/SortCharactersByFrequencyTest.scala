@@ -1,8 +1,8 @@
 package me.jerrywang.scala.study.algorithms.leetcode
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class SortCharactersByFrequencyTest extends FunSuite {
+class SortCharactersByFrequencyTest extends AnyFunSuite {
 
   test("testExample1") {
     assert(SortCharactersByFrequency.frequencySort("tree") == "eert")

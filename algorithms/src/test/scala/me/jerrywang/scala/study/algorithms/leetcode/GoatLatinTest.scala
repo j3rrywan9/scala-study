@@ -1,8 +1,8 @@
 package me.jerrywang.scala.study.algorithms.leetcode
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class GoatLatinTest extends FunSuite {
+class GoatLatinTest extends AnyFunSuite {
 
   test("testExample1") {
     assert(GoatLatin.toGoatLatin("I speak Goat Latin") == "Imaa peaksmaaa oatGmaaaa atinLmaaaaa")

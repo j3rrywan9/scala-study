@@ -1,8 +1,8 @@
 package me.jerrywang.scala.study.algorithms.leetcode
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class StringToIntegerTest extends FunSuite {
+class StringToIntegerTest extends AnyFunSuite {
 
   test("testPositiveNumber") {
     assert(StringToInteger.myAtoi("42") == 42)

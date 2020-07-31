@@ -1,8 +1,8 @@
 package me.jerrywang.scala.study.algorithms.leetcode
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class WordBreakTest extends FunSuite {
+class WordBreakTest extends AnyFunSuite {
 
   test("testExample1") {
     assert(WordBreak.wordBreak("leetcode", List("leet", "code")))
