@@ -11,15 +11,9 @@ object MoveZeros {
         val temp = nums(anchor)
         nums(anchor) = nums(explorer)
         nums(explorer) = temp
-        anchor = anchor + 1
+
+        anchor += 1
       }
     }
-  }
-
-  def main(args: Array[String]): Unit = {
-    val nums = Array(0, 1, 0, 3, 12)
-
-    MoveZeros.moveZeros(nums)
-    println(s"[${nums.mkString(", ")}]")
   }
 }
