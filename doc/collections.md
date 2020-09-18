@@ -25,16 +25,31 @@ When you're done building, you can obtain a `List` by invoking `toList` on the `
 ## Mutable and immutable collections
 
 Scala collections systematically distinguish between mutable and immutable collections.
-
 A mutable collection can be updated or extended in place.
 This means you can change, add, or remove elements of a collection as a side effect.
-
 Immutable collections, by contrast, never change.
 You still have operations that simulate additions, removals, or updates, but those operations will in each case return a new collection and leave the old collection unchanged.
 
 All collection classes are found in the package `scala.collection` or one of its subpackages: `mutable`, `immutable`, and `generic`.
 Most collection classes needed by client code exist in three variants, each of which has different characteristics with respect to mutability.
 The three variants are located in packages `scala.collection`, `scala.collection.immutable`, and `scala.collection.mutable`.
+
+A collection in package `scala.collection.immutable` is guaranteed to be immutable for everyone.
+Such a collection will never change after it is created.
+Therefore, you can rely on the fact that accessing the same collection value repeatedly at different points in time will always yield a collection with the same elements.
+
+A collection in package `scala.collection.mutable` is known to have some operations that change the collection in place.
+These operations let you write code to mutate the collection yourself.
+However, you must be careful to understand and defend against any updates performed by other parts of the code base.
+
+A collection in package `scala.collection` can be either mutable or immutable.
+For instance, `scala.collection.IndexedSeq[T]` is a super trait of both `scala.collection.immutable.IndexedSeq[T]` and its mutable sibling `scala.collection.mutable.IndexedSeq[T]`.
+Generally, the root collections in package `scala.collection` support transformation operations affecting the whole collection, such as `map` and `filter`.
+The immutable collections in package `scala.collection.immutable` typically add operations for adding and removing single values, and the mutable collections in package `scala.collection.mutable add some side-effecting modification operations to the root interface.
+
+By default, Scala always picks immutable collections.
+For instance, if you just write `Set` without any prefix or without having imported anything, you get an immutable set, and if you write `Iterable` you get an immutable iterable, because these are the default bindings imported from the `scala` package.
+To get the mutable default versions, you need to write explicitly `collection.mutable.Set`, or `collection.mutable.Iterable`.
 
 ## Collection consistency
 
@@ -77,9 +92,24 @@ However, the way each trait implements `PartialFunction` differs.
 The `Seq` trait represents sequences.
 A sequence is a kind of iterable that has a `length` and whose elements have fixed index positions, starting from `0`.
 
+The operations on sequences fall into the following categories:
+* Indexing and length operations
 For a `Seq`, the `apply` operation means indexing;
 hence a sequence of type `Seq[T]` is a partial function that take an `Int` argument (an index) and yields a sequence element of type `T`.
 In other words `Seq[T]` extends `PartialFunction[Int, T]`.
+The elements of a sequence are indexed from zero up to the `length` of the sequence minus one.
+* Index search operations
+* Addition operations
+* Update operations
+`updated` and `patch`, which return a new sequence obtained by replacing some elements of the original sequence.
+
+Each `Seq` trait has two subtraits, `LinearSeq` and `IndexedSeq`, which offer different performance characteristics.
+A linear sequence has efficient `head` and `tail` operations, whereas an indexed sequence has efficient `apply`, `length`, and (if mutable) `update` operations.
+`List` is a frequently used linear sequence, as is `LazyList`.
+Two frequently used indexed sequences are `Array` and `ArrayBuffer`.
+The `Vector` class provides an interesting compromise between indexed and linear access.
+It has both effectively constant time indexing overhead and constant time linear access overhead.
+Because of this, vectors are a good foundation for mixed access patterns where both indexed and linear accesses are used.
 
 ### Buffers
 
