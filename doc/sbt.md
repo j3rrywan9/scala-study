@@ -382,6 +382,9 @@ But you can easily customize the way sources are organized, if necessary.
 
 #### Standard organization of sources
 
+Let's take a look at the `sources` task and determine the source layout conventions from there.
+A simple run of `inspect tree sources` reveals the structure
+
 You can see that the list of sources is taken from two aggregates:
 * **unmanagedSources** - A discovered list of source files using standard project conventions
 * **managedSources** - A list of sources that are either generated from the build or manually added
@@ -391,7 +394,7 @@ Unmanaged means you (not sbt) have to do the work of adding, modifying, and trac
 
 Unmanaged sources make use of a set of file filters and a default set of directories to produce the sequence of source files for the project.
 As shown in the dependency tree, the directories defined by the `javaSource` and `scalaSource` settings make up the set of directories where sbt looks for sources.
-Let’s see what these settings are by default (the convention):
+Let's see what these settings are by default (the convention):
 ```
 > show javaSource
 [info] progfun / Compile / javaSource
@@ -410,10 +413,12 @@ These directories are scanned for files, and those files that pass the default f
 
 Similar to how sbt has a `sources` task to collect sources, there's a corresponding `resources` task, which collects all the files that should be available at runtime.
 
+Those familiar with Maven may recognize this convention, because it's borrowed from their ecosystem.
+
 #### Testing sources
 
 Besides these main sources, many projects contain other kinds of source files.
-The most prominent ones are the test source files, which contain code to test your software but will never enter production.
+The most prominent ones are the *test source files*, which contain code to test your software but will never enter production.
 Typical examples include unit tests written using a testing library like ScalaTest, ScalaCheck, or JUnit.
 Of course, there can also be test resources, files that won't be compiled but are needed at the time of test execution as is.
 
@@ -429,7 +434,7 @@ sbt does this same thing with the resources task, creating settings for configur
 #### Custom organization of sources
 
 The lowest setting in the tree, `sourceDirectory`, which has type `File` in the Global configuration scope (`*`), is defined to be `src/`.
-By default it depends on another setting of type File: `baseDirectory`, which points to the base directory of your project.
+By default it depends on another setting of type `File: baseDirectory`, which points to the base directory of your project.
 `sourceDirectory` points to a new `src` child directory underneath the project's `baseDirectory`.
 
 Conceptually, this is sbt's default `sourceDirectory` configuration:
@@ -437,9 +442,24 @@ Conceptually, this is sbt's default `sourceDirectory` configuration:
 sourceDirectory := new File(baseDirectory.value, "src")
 ```
 
+#### Filtering the source you want
+
+But sometimes you also want to have source code generated.
+sbt supports that through so-called managed sources.
+For now all you need to understand is that sources are distinguished into unmanaged - those you write - and managed - those that are generated.
+
+For the unmanaged sources, sbt further applies filters to include and exclude source files.
+You've already seen the default directories where you put your Scala and Java sources.
+Using the filters, sbt determines which files from these directories should be treated as sources and which ones should be ignored.
+By default the `include-filter` setting is initialized with a filter that includes all *.scala and *.java files, and the `exclude-filter` setting excludes any hidden files - for example, those starting with a dot (.).
+
+Exclude filters take precedence over include filters.
+The actual implementation runs the include filter first and then checks the exclude filter, leading to any excludes overriding the includes.
+
 ### Depending on libraries
 
 It's practically impossible these days to work on a project without relying on libraries or other projects.
+sbt provides a pretty robust way to specify dependencies, so figure 4.5 digs into it using the `inspect tree compile:dependencyClasspath`.
 
 The dependencies are split into two parts:
 * **Internal dependencies** - These are the dependencies between projects defined in the current sbt build.
@@ -453,19 +473,25 @@ These dependencies are resolved by the `update` task.
 
 #### Unmanaged dependencies
 
+To add a library as an unmanaged dependency, drop a jar archive into the lib/ directory of your project.
+
+sbt will put all libraries found in the lib/ directory on the project's `unmanagedClasspath`.
+The default directory where sbt looks for libraries is also configurable.
+You can do this by altering `unmanagedBase` of type File, but again, be aware that most sbt users will expect it to be named `lib/`.
+
 #### Managed dependencies
 
 The recommended approach to library dependencies is using managed dependencies.
 If you've been using Maven, Gradle, or some other advanced build tool, the concept of declarative library management won't be new.
 sbt's managed dependencies are similar: you declare one or more library dependencies in the build definition, and sbt will download these from a repository and put these on the classpath when needed.
 
-Although managedDependencies can be used to specify files/jars directly, it's recommended to directly use Ivy and the `update` task.
+Although `managedDependencies` can be used to specify files/jars directly, it's recommended to directly use Ivy and the `update` task.
 
 The `update` task makes use of the configuration of Ivy for sbt and the configuration of the current project, called a *module* in Ivy.
 The `ivySbt` task pulls in all the global configuration of Ivy, like where to look for dependencies and what credentials to use.
 The `ivyModule` task pulls together all the configuration for the current project, like what its identifier (name) is, what dependencies it has, and what artifacts it will produce.
 
-The most important setting to know about IvySbt is the `resolvers` setting.
+The most important setting to know about `IvySbt` is the `resolvers` setting.
 This is where you can specify how and where to find libraries.
 Although Ivy supports configurable lookup mechanisms, most projects make use of sbt's default, which is to load from a Maven repository.
 
@@ -508,6 +534,10 @@ This is as easy as before, and sbt will automatically create a `ModuleID`, which
 
 #### Managed dependencies and configurations
 
+Now that you understand how to declare library dependencies, let's take a look at executing more fine-grained control and scoping these to configurations.
+Configurations usually come with their own sources and classpath;
+for example, the `Compile` configuration uses the main sources, and the `Test` configuration the test sources.
+
 Therefore, ScalaTest and all its transient dependencies have to be on the classpath.
 But because these library dependencies are needed only to compile the test sources, it would be a bad idea to define them globally.
 Instead, you can add the proper configuration to a `ModuleID`:
@@ -516,7 +546,7 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.0.5" % "test"
 )
 ```
-You append the name of the Test configuration to the library dependency, using an additional `%` operator to define the configuration.
+You append the name of the `Test` configuration to the library dependency, using an additional `%` operator to define the configuration.
 By default, all dependencies are put onto the default configuration, used for both running and compiling all code in your project.
 
 ### Packaging your project
@@ -531,6 +561,15 @@ Publishing to Ivy or Maven requires a few things:
 * A jar file containing the source code of the shared library
 * A jar file containing the documentation (Scaladoc or Javadoc) of the shared library
 * A configuration file (pom.xml or ivy.xml) that identifies the project and where it came from
+
+If you look at the default package task, using the `inspect tree package` command, you'll find a tree like the one in figure 4.7.
+
+The `package` task depends on the `packageBin` task, which generated the binary artifact (jar) for the project.
+The contents of this file are defined by the `mappings` in `packageBin` task.
+The `mappings` task has the type `Seq[(File, String)]`, a list of files and string names.
+The files are the list of files to include in the resulting jar, and the names are the location within the jar to store the file.
+
+Although creating the project's binary artifacts is convenient, let's look at how sbt creates the other artifacts in the base build: the documentation and the source.
 
 #### Identifying your project
 
