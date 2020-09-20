@@ -586,13 +586,48 @@ For a multimodule build (that is, one with multiple projects) it's common practi
 
 ### Configuring specs2 with sbt
 
+#### Reporting and forking tests
+
 ### JUnit and using custom code
+
+In fact, sbt isn't even running the Java test.
+Why?
+As you've seen, sbt "knows" how to run certain test frameworks out of the box.
+But how does it know this?
+sbt defines a `test-interface`, which allows sbt (1) to find the list of classes to run as tests, and (2) to run those tests.
+JUnit doesn't know about this interface.
+
+> The `test-interface` of sbt
+>
+> sbt supports, by default, ScalaTest, ScalaCheck, and specs2.
+> This is because all of those test frameworks include in their jars a class that implements the sbt `test-interface` classes.
+> JUnit does not, because it's not a Scala testing framework; it's a Java one.
+
+In order to run your JUnit tests, you need to define an sbt test-interface for JUnit.
+Fortunately, someone has already done it for you, and all you need to do is add it to the dependencies for your project.
+It's called junit-interface:
+```sbt
+libraryDependencies += "junit" % "junit" % "4.11" % "test"
+libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % "test"            
+```
+
+#### Report generation with JUnit
 
 ### ScalaCheck
 
 ScalaCheck is a test framework that's designed for property-based testing.
+The main difference between a more traditional unit-testing framework and a property-based framework is that with a traditional framework, you have to provide the data with which to test your classes.
+With a property-based framework, it provides the data.
+You tell it what sort of data you want, and then it generates a set of data and runs the tests.
+You need to provide some code that asserts that a combination of data is correct.
 
 ### Integration testing
+
+#### ScalaTest and Selenium
+
+Another commonly used Scala testing framework is ScalaTest.
+ScalaTest implements a number of different styles of testing, including specification-style testing like specs2, unit testing like JUnit, and even behavior-driven development style testing.
+Which style you use depends on what you want to test and what stage of your project that you're at.
 
 ## Chapter 6. The IO and Process libraries
 
@@ -628,3 +663,9 @@ Using this has a number of advantages over a simple `println`.
 ## Chapter 7. Accepting user input
 
 ## Chapter 8. Using plugins and external libraries
+
+## Chapter 9. Debugging your build
+
+## Chapter 10. Automating workflows with commands
+
+## Chapter 11. Defining a plugin
