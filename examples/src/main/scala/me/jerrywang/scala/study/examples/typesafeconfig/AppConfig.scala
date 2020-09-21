@@ -12,7 +12,7 @@ object AppConfig {
 
   val ProcessTimeout: Int = Conf.getInt("process.timeout.minutes")
 
-  val uuids = Try(Paths.get(Conf.getString("uuids.path"))).toOption
+  val uuids: Option[Path] = Try(Paths.get(Conf.getString("uuids.path"))).toOption
 
   object S3Config {
     val RegionName: String = Conf.getString("aws.region")
