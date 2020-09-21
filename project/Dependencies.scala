@@ -7,7 +7,7 @@ object Dependencies {
   lazy val scalaLoggingVersion = "3.9.2"
   lazy val scalaTestVersion = "3.1.2"
   lazy val scalaTestPlusVersion = "3.1.0.0-RC2"
-  lazy val springBootVersion = "1.5.7.RELEASE"
+  lazy val springBootVersion = "2.3.4.RELEASE"
   lazy val typesafeConfigVersion = "1.3.3"
 
   val json4s = "org.json4s" %% "json4s-jackson" % json4sVersion
@@ -16,7 +16,8 @@ object Dependencies {
   val scalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion
   val scalaTest = "org.scalatest" %% "scalatest" % scalaTestVersion % Test
   val scalaTestPlus = "org.scalatestplus" %% "scalatestplus-scalacheck" % scalaTestPlusVersion % Test
-  val springBoot = "org.springframework.boot" % "spring-boot-starter-web" % springBootVersion
+  val springBootStarterJetty = "org.springframework.boot" % "spring-boot-starter-jetty" % springBootVersion
+  val springBootStarterWeb = "org.springframework.boot" % "spring-boot-starter-web" % springBootVersion exclude("org.springframework.boot", "spring-boot-starter-tomcat")
   val typesafeConfig = "com.typesafe" % "config" % typesafeConfigVersion
 
   val backendDeps = Seq(
@@ -26,7 +27,8 @@ object Dependencies {
     scalaLogging,
     scalaTest,
     scalaTestPlus,
-    springBoot,
+    springBootStarterJetty,
+    springBootStarterWeb,
     typesafeConfig
   )
 }
