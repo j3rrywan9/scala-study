@@ -8,7 +8,7 @@ object Dependencies {
   lazy val scalaTestVersion = "3.1.2"
   lazy val scalaTestPlusVersion = "3.1.0.0-RC2"
   lazy val springBootVersion = "2.3.4.RELEASE"
-  lazy val typesafeConfigVersion = "1.3.3"
+  lazy val typesafeConfigVersion = "1.4.0"
 
   val json4s = "org.json4s" %% "json4s-jackson" % json4sVersion
   val logback = "ch.qos.logback" % "logback-classic" % logbackVersion
