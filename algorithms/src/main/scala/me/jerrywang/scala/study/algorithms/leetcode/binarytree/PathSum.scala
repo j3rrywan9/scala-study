@@ -1,4 +1,4 @@
-package me.jerrywang.scala.study.algorithms.leetcode
+package me.jerrywang.scala.study.algorithms.leetcode.binarytree
 
 // LC 112
 object PathSum {
