@@ -1,4 +1,4 @@
-package me.jerrywang.scala.study.algorithms.leetcode
+package me.jerrywang.scala.study.algorithms.leetcode.binarytree
 
 import scala.collection.mutable.ListBuffer
 
