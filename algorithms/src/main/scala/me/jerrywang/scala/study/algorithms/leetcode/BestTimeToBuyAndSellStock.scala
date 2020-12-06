@@ -17,9 +17,4 @@ object BestTimeToBuyAndSellStock {
 
     maxProfit
   }
-
-  def main(args: Array[String]): Unit = {
-    println(BestTimeToBuyAndSellStock.maxProfit(Array(7, 1, 5, 3, 6, 4)))
-    println(BestTimeToBuyAndSellStock.maxProfit(Array(7, 6, 4, 3, 1)))
-  }
 }
