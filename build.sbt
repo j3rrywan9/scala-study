@@ -7,7 +7,7 @@ ThisBuild / organization := "me.jerrywang.scala"
 ThisBuild / version := "1.0.0-SNAPSHOT"
 
 lazy val scalaMajorVersion = "2.13"
-lazy val scalaMinorVersion = "3"
+lazy val scalaMinorVersion = "4"
 
 ThisBuild / scalaVersion := s"$scalaMajorVersion.$scalaMinorVersion"
 
