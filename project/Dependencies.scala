@@ -5,7 +5,7 @@ object Dependencies {
   lazy val logbackVersion = "1.2.3"
   lazy val scalaCheckVersion = "1.15.1"
   lazy val scalaLoggingVersion = "3.9.2"
-  lazy val scalaTestVersion = "3.1.2"
+  lazy val scalaTestVersion = "3.2.3"
   lazy val scalaTestPlusVersion = "3.1.0.0-RC2"
   lazy val springBootVersion = "2.3.4.RELEASE"
   lazy val typesafeConfigVersion = "1.4.0"
