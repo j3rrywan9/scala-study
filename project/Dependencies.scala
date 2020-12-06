@@ -3,7 +3,7 @@ import sbt._
 object Dependencies {
   lazy val json4sVersion = "3.6.7"
   lazy val logbackVersion = "1.2.3"
-  lazy val scalaCheckVersion = "1.14.3"
+  lazy val scalaCheckVersion = "1.15.1"
   lazy val scalaLoggingVersion = "3.9.2"
   lazy val scalaTestVersion = "3.1.2"
   lazy val scalaTestPlusVersion = "3.1.0.0-RC2"
