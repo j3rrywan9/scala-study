@@ -29,7 +29,7 @@
     <scala-logging.version>3.9.2</scala-logging.version>
     <scalacheck.version>1.14.1</scalacheck.version>
     <scalatest.version>3.0.8</scalatest.version>
-    <spring-boot.version>1.5.7.RELEASE</spring-boot.version>
+    <spring-boot.version>2.5.12</spring-boot.version>
     <typesafe-config.version>1.3.3</typesafe-config.version>
   </properties>
 
